@@ -22,6 +22,7 @@ public class Board
 	{
 		boardGui = boardView;
 		initialize();
+		boardGui.initializeView(this);
 		whitePieces = findAllPiecesByColor(fieldArray, Alliance.WHITE);
 		blackPieces = findAllPiecesByColor(fieldArray, Alliance.BLACK);
 	}
@@ -102,6 +103,16 @@ public class Board
 	public final Piece getPieceOnField(int absolutePosition)
 	{
 		return fieldArray.get(absolutePosition).getPiece();
+	}
+	
+	public final Collection<Piece> getBlackPieces()
+	{
+		return blackPieces;
+	}
+	
+	public final Collection<Piece> getWhitePieces()
+	{
+		return whitePieces;
 	}
 	
 	public final boolean isFieldUnderAttack(final int absolutePosition, Alliance defenderAlliance)

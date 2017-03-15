@@ -13,6 +13,7 @@ public class Queen extends Piece
 	public Queen(final int position, final Alliance alliance)
 	{
 		super(position, alliance);
+		this.pieceType = PieceType.QUEEN;
 	}
 	
 	@Override

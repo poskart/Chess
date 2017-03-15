@@ -5,6 +5,7 @@ import java.util.List;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
 import chess.model.board.Move;
+import chess.model.pieces.Piece.PieceType;
 
 public class Bishop extends Piece 
 {
@@ -13,6 +14,8 @@ public class Bishop extends Piece
 	public Bishop(final int position, final Alliance alliance)
 	{
 		super(position, alliance);
+		this.pieceType = PieceType.BISHOP;
+
 	}
 	
 	@Override

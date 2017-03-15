@@ -8,7 +8,8 @@ public class Chess
 	{
 		BoardTable boardView = new BoardTable();
 		Board gameBoard = new Board(boardView);
-		Game chessGame = new Game(gameBoard);
+		Game chessGame = new Game(gameBoard, boardView);
+		chessGame.run();
 		
 		System.out.println(gameBoard);
 		

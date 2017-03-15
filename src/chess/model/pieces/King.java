@@ -14,6 +14,7 @@ public class King extends Piece
 	public King(final int position, final Alliance alliance)
 	{
 		super(position, alliance);
+		this.pieceType = PieceType.KING;
 	}
 	
 	@Override

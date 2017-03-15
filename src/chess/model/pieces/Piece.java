@@ -11,6 +11,7 @@ public abstract class Piece
 	protected int position;
 	protected final Alliance alliance;
 	protected boolean afterFirstMove;
+	protected PieceType pieceType;
 	
 	Piece(final int position, final Alliance pieceAlliance)
 	{
@@ -53,6 +54,11 @@ public abstract class Piece
 		afterFirstMove = wasFirstMoveExecuted;
 	}
 
+	public final PieceType getPieceType()
+	{
+		return pieceType;
+	}
+	
 	public enum PieceType
 	{
 		PAWN("P"),

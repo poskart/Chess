@@ -15,6 +15,7 @@ public class Knight extends Piece
 	public Knight(int position, Alliance alliance)
 	{
 		super(position, alliance);
+		this.pieceType = PieceType.KNIGHT;
 	}
 	
 	@Override

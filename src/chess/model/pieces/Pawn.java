@@ -12,6 +12,7 @@ public class Pawn extends Piece
 	public Pawn(final int position, final Alliance alliance)
 	{
 		super(position, alliance);
+		this.pieceType = PieceType.PAWN;
 	}
 	
 	@Override
