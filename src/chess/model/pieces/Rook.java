@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
-import chess.model.board.Move;
-import chess.model.pieces.Piece.PieceType;
+import chess.model.game.Move;
 
 public class Rook extends Piece 
 {

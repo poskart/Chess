@@ -1,17 +1,26 @@
 import chess.controller.*;
-import chess.view.BoardTable;
-import chess.model.board.Board;
+import chess.view.View;
+import chess.model.Model;
 
 public class Chess 
 {
 	public static void main(String[] args)
 	{
-		BoardTable boardView = new BoardTable();
-		Board gameBoard = new Board(boardView);
-		Game chessGame = new Game(gameBoard, boardView);
-		chessGame.run();
+		Model model = new Model();
+		View view = new View(model);
+		Controller controller = new Controller(model, view);
+	
+		try
+		{
+			Thread.sleep(1);
+		}
+		catch(InterruptedException ex)
+		{
+			Thread.currentThread().interrupt();
+		}
 		
-		System.out.println(gameBoard);
+		view.setInitialGameBoard();
+		System.out.println(model.getGameBoard());
 		
 	}
 }

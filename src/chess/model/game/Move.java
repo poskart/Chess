@@ -1,4 +1,4 @@
-package chess.model.board;
+package chess.model.game;
 
 import chess.model.pieces.Piece;
 

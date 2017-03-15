@@ -1,4 +1,4 @@
-package chess.controller;
+package chess.model.game;
 
 import chess.model.aux.Alliance;
 

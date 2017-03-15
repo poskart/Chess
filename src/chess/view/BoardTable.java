@@ -7,8 +7,6 @@ import chess.model.pieces.Piece;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,7 +35,7 @@ public class BoardTable
 	
 	private Board gameBoard;
 	
-	public BoardTable()
+	public BoardTable(Board board)
 	{
 		this.gameFrame = new JFrame("Chess");
 		this.gameFrame.setSize(BOARD_DIMENSION);
@@ -47,7 +45,7 @@ public class BoardTable
 		gameBoardPanel = new BoardPanel();
 		this.gameFrame.add(this.gameBoardPanel, BorderLayout.CENTER);
 		this.gameFrame.setVisible(true);
-		gameBoard = null;
+		gameBoard = board;
 	}
 	
 	private JMenu createMainMenu()
@@ -64,11 +62,6 @@ public class BoardTable
 			});
 		mainMenu.add(exit);
 		return mainMenu;
-	}
-	
-	public void initializeView(Board board)
-	{
-		this.gameBoard = board;
 	}
 	
 	public void setInitialGameBoard()

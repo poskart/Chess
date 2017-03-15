@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import chess.model.game.Move;
 import chess.model.aux.Alliance;
 import chess.model.pieces.*;
-import chess.view.BoardTable;
 
 public class Board 
 {
@@ -14,15 +14,12 @@ public class Board
 	private final Collection<Piece> whitePieces;
 	private final Collection<Piece> blackPieces;
 
-	private final BoardTable boardGui;
 	
 	public final static int BOARD_FIELDS_NUMBER = 64;
 	
-	public Board(BoardTable boardView)
+	public Board()
 	{
-		boardGui = boardView;
 		initialize();
-		boardGui.initializeView(this);
 		whitePieces = findAllPiecesByColor(fieldArray, Alliance.WHITE);
 		blackPieces = findAllPiecesByColor(fieldArray, Alliance.BLACK);
 	}
@@ -132,6 +129,11 @@ public class Board
 			}
 		}
 		return false;
+	}
+	
+	public void executeMove(Move move)
+	{
+		
 	}
 	
 	@Override
