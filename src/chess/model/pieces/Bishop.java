@@ -5,6 +5,8 @@ import java.util.List;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
+import chess.model.game.Move.AttackMove;
+import chess.model.game.Move.CommonMove;
 
 public class Bishop extends Piece 
 {
@@ -14,7 +16,6 @@ public class Bishop extends Piece
 	{
 		super(position, alliance);
 		this.pieceType = PieceType.BISHOP;
-
 	}
 	
 	@Override
@@ -38,10 +39,11 @@ public class Bishop extends Piece
 				if(board.isBoardFieldOccupied(potentialAbsolutePosition))
 				{
 					if(board.getPieceOnField(potentialAbsolutePosition).alliance != examinedPiece.getAlliance())
-						possibleMovesList.add(new Move(examinedPiece, potentialAbsolutePosition));
+						possibleMovesList.add(new AttackMove(board, examinedPiece, board.getPieceOnField(potentialAbsolutePosition), 
+								examinedPiece.getPosition(), potentialAbsolutePosition));
 					break;
 				}
-				possibleMovesList.add(new Move(examinedPiece, potentialAbsolutePosition));
+				possibleMovesList.add(new CommonMove(board, examinedPiece, examinedPiece.getPosition(), potentialAbsolutePosition));
 
 				/*
 				 * If it is the border of the board then break

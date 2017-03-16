@@ -6,6 +6,8 @@ import java.util.List;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
+import chess.model.game.Move.AttackMove;
+import chess.model.game.Move.CommonMove;
 
 public class Knight extends Piece
 {
@@ -27,9 +29,14 @@ public class Knight extends Piece
 			potentialAbsolutePosition = this.position + offset;
 			if(board.isFieldValid(potentialAbsolutePosition))
 			{
-				if(board.isBoardFieldOccupied(potentialAbsolutePosition) && board.getPieceOnField(potentialAbsolutePosition).alliance == alliance)
-					continue;
-				possibleMovesList.add(new Move(this, potentialAbsolutePosition));
+				if(board.isBoardFieldOccupied(potentialAbsolutePosition))
+				{
+					if(board.getPieceOnField(potentialAbsolutePosition).alliance != alliance)
+						possibleMovesList.add(new AttackMove(board, this, board.getPieceOnField(potentialAbsolutePosition),
+								position, potentialAbsolutePosition));
+				}
+				else
+					possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
 			}
 		}
 		return possibleMovesList;

@@ -6,4 +6,5 @@ public final class GUISettings
 	public static final int FIELD_SIZE = 10;
 	
 	public static final String PIECE_IMAGES_PATH = "img/pieces/";
+	public static final String HIGHLIGHT_IMAGE_PATH = "img/aux/allowed.gif";
 }

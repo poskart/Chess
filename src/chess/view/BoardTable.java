@@ -2,6 +2,7 @@ package chess.view;
 
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
+import chess.model.game.Move;
 import chess.model.pieces.Piece;
 
 import java.awt.BorderLayout;
@@ -10,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +35,8 @@ public class BoardTable
 	private static final Color DARK_FIELD_COLOR = new Color(30, 30, 30);
 	private static final Color WHITE_FIELD_COLOR = new Color(220, 220, 220);
 	
+	protected List<Move> highlightedMoves;
+	
 	private Board gameBoard;
 	
 	public BoardTable(Board board)
@@ -46,6 +50,7 @@ public class BoardTable
 		this.gameFrame.add(this.gameBoardPanel, BorderLayout.CENTER);
 		this.gameFrame.setVisible(true);
 		gameBoard = board;
+		highlightedMoves = null;
 	}
 	
 	private JMenu createMainMenu()
@@ -67,6 +72,37 @@ public class BoardTable
 	public void setInitialGameBoard()
 	{
 		gameBoardPanel.drawPieces(gameBoard.getBlackPieces(), gameBoard.getWhitePieces());
+	}
+	
+	void addController(MouseListener controller)
+	{
+		gameBoardPanel.addController(controller);
+	}
+	
+	public void highlightPossibleMoves(final int fieldId)
+	{
+		highlightedMoves = gameBoard.getPieceOnField(fieldId).findPossibleMoves(gameBoard);
+		for(Move move : highlightedMoves)
+		{
+			gameBoardPanel.highlight(move.getTargetPosition());
+		}
+	}
+	
+	public void removeHighlight()
+	{
+		if(highlightedMoves != null)
+		{
+			for(Move move : highlightedMoves)
+			{
+				gameBoardPanel.removeHighlight(move.getTargetPosition());
+			}
+		}
+		highlightedMoves.clear();
+	}
+	
+	public void redrawFieldPanel(final int position)
+	{
+		gameBoardPanel.fieldArray.get(position).redrawField(gameBoard);
 	}
 	
 	private class BoardPanel extends JPanel
@@ -92,11 +128,31 @@ public class BoardTable
 			for(final Piece piece : secondPiecesSet)
 				fieldArray.get(piece.getPosition()).drawPiece(piece);
 		}
+		
+		public void addController(MouseListener controller)
+		{
+			for(final FieldPanel panel : fieldArray)
+			{
+				panel.addMouseListener((MouseListener) controller);
+			}
+		}
+		
+		public void highlight(final int panelId)
+		{
+			fieldArray.get(panelId).highlight();
+		}
+		
+		public void removeHighlight(final int panelId)
+		{
+			fieldArray.get(panelId).removeHighlight();
+		}
 	}
 	
-	private class FieldPanel extends JPanel
+	public class FieldPanel extends JPanel
 	{
 		private final int fieldId;
+		private JLabel pieceLabel;
+		private JLabel otherLabel;
 		
 		FieldPanel(final int fieldId)
 		{
@@ -106,6 +162,23 @@ public class BoardTable
 			setBackground(DARK_FIELD_COLOR);
 			assignColorToField();
 			validate();
+			otherLabel = null;
+			pieceLabel = null;
+		}
+		
+		public final int getPanelId()
+		{
+			return fieldId;
+		}
+		
+		public void redrawField(final Board board)
+		{
+			removeAll();
+			assignColorToField();
+			if(board.isBoardFieldOccupied(fieldId))
+				drawPiece(board.getPieceOnField(fieldId));
+			validate();
+			repaint();
 		}
 		
 		private void assignColorToField()
@@ -120,15 +193,49 @@ public class BoardTable
 		
 		public void drawPiece(Piece piece)
 		{
+			removeAll();
 			String fileName = new String(GUISettings.PIECE_IMAGES_PATH);
 			if(piece.getAlliance() == Alliance.BLACK)
 				fileName += "B";
 			else
 				fileName += "W";
 			fileName += piece.getPieceType().toString() + ".gif";
-			ImageIcon image = new ImageIcon(fileName);
-			JLabel label = new JLabel("", image, JLabel.CENTER);
-			add(label, BorderLayout.CENTER);
+			try
+			{
+				ImageIcon image = new ImageIcon(fileName);
+				this.pieceLabel = new JLabel("", image, JLabel.CENTER);
+				add(pieceLabel, BorderLayout.CENTER);
+//				validate();
+//				repaint();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		public void highlight()
+		{
+			try
+			{
+				ImageIcon image = new ImageIcon(GUISettings.HIGHLIGHT_IMAGE_PATH);
+				otherLabel = new JLabel("", image, JLabel.CENTER);
+				add(otherLabel, BorderLayout.CENTER);
+				validate();
+				repaint();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		public void removeHighlight()
+		{
+			remove(otherLabel);
+			otherLabel = null;
+			validate();
+			repaint();
 		}
 	}
 }

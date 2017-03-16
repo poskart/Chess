@@ -4,9 +4,9 @@ import chess.model.aux.Alliance;
 
 public final class WhitePlayer extends Player
 {
-	public WhitePlayer(final Alliance alliance)
+	public WhitePlayer()
 	{
-		super(alliance);
+		super(Alliance.WHITE);
 	}
 	public void executeMove()
 	{

@@ -5,6 +5,8 @@ import java.util.List;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
+import chess.model.game.Move.AttackMove;
+import chess.model.game.Move.CommonMove;
 
 public class King extends Piece 
 {
@@ -17,7 +19,7 @@ public class King extends Piece
 	}
 	
 	@Override
-	public List<Move> findPossibleMoves(Board board) 
+	public List<Move> findPossibleMoves(Board board)
 	{
 		List<Move> possibleMovesList = new ArrayList<>();
 		int potentialAbsolutePosition;
@@ -26,7 +28,17 @@ public class King extends Piece
 		{
 			potentialAbsolutePosition = position + offset;
 			if(isPositionValidTargetForKing(board, position, potentialAbsolutePosition))
-				possibleMovesList.add(new Move(this, potentialAbsolutePosition));
+			{
+				if(board.isBoardFieldOccupied(potentialAbsolutePosition))
+				{
+					possibleMovesList.add(new AttackMove(board, this, 
+							board.getPieceOnField(potentialAbsolutePosition), position, potentialAbsolutePosition));
+				}
+				else
+				{
+					possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
+				}
+			}
 		}
 		return possibleMovesList;
 	}
@@ -52,9 +64,11 @@ public class King extends Piece
 		/*
 		 * Check if there will be no check in target field
 		 */
-		if(board.isFieldUnderAttack(targetPosition, getAlliance()))
-			return false;
-		
+		if(board.getActiveAlliance() == getAlliance())
+		{
+			if(board.isFieldUnderAttack(targetPosition, getAlliance()))
+				return false;
+		}
 		return true;
 	}
 	

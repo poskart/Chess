@@ -27,6 +27,11 @@ public abstract class Piece
 		return position;
 	}
 	
+	public void updatePosition(final int newPosition)
+	{
+		this.position = newPosition;
+	}
+	
 	public final Alliance getAlliance()
 	{
 		return alliance;

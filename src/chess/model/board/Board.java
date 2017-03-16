@@ -11,9 +11,9 @@ import chess.model.pieces.*;
 public class Board 
 {
 	private List<Field> fieldArray;
-	private final Collection<Piece> whitePieces;
-	private final Collection<Piece> blackPieces;
-
+	private Collection<Piece> whitePieces;
+	private Collection<Piece> blackPieces;
+	private Alliance activeAlliance;
 	
 	public final static int BOARD_FIELDS_NUMBER = 64;
 	
@@ -22,6 +22,7 @@ public class Board
 		initialize();
 		whitePieces = findAllPiecesByColor(fieldArray, Alliance.WHITE);
 		blackPieces = findAllPiecesByColor(fieldArray, Alliance.BLACK);
+		activeAlliance = Alliance.WHITE;
 	}
 	
 	public void initialize()
@@ -84,7 +85,44 @@ public class Board
 		{
 			legalMoves.addAll(piece.findPossibleMoves(this));
 		}
-		return null;
+		return legalMoves;
+	}
+	
+	public final Collection<Move> getAllLegalMovesOfAlliance(final Alliance alliance)
+	{
+		if(alliance == Alliance.BLACK)
+			return calculateAllLegalMoves(blackPieces);
+		else
+			return calculateAllLegalMoves(whitePieces);
+	}
+	
+	public void recomputePieces(Alliance alliance)
+	{
+		if(alliance == Alliance.BLACK)
+			this.blackPieces = findAllPiecesByColor(fieldArray, alliance);
+		else
+			this.whitePieces = findAllPiecesByColor(fieldArray, alliance);
+	}
+	
+	public void putPieceOnField(final Piece piece, final int targetPosition)
+	{
+		fieldArray.remove(targetPosition);
+		fieldArray.add(targetPosition, Field.createField(targetPosition, piece));
+		piece.updatePosition(targetPosition);
+	}
+	
+	public final Piece removePieceFromField(final Piece piece, final int position)
+	{
+		fieldArray.remove(position);
+		fieldArray.add(position, Field.createField(position, null));
+		return piece;
+	}
+	
+	private Collection<Move> calculateAllLegalMoves(final Piece pieceToExamine)
+	{
+		List<Move> legalMoves = new ArrayList<>();
+		legalMoves.addAll(pieceToExamine.findPossibleMoves(this));
+		return legalMoves;
 	}
 	
 	public final boolean isBoardFieldOccupied(int position)
@@ -112,28 +150,32 @@ public class Board
 		return whitePieces;
 	}
 	
+	public final Alliance getActiveAlliance()
+	{
+		return activeAlliance;
+	}
+	
+	public void updateActiveAlliance(final Alliance alliance)
+	{
+		this.activeAlliance = alliance;
+	}
+	
 	public final boolean isFieldUnderAttack(final int absolutePosition, Alliance defenderAlliance)
 	{
 		List<Move> possibleMovesList = new ArrayList<>();
-		
-		for(int i = 0; i < 64; i++)
+		possibleMovesList = (ArrayList<Move>)getAllLegalMovesOfAlliance(defenderAlliance.getContraryAlliance());
+
+		for(Move move : possibleMovesList)
 		{
-			if(fieldArray.get(i).isFieldOccupied() && fieldArray.get(i).getPiece().getAlliance() != defenderAlliance)
-			{
-				possibleMovesList = fieldArray.get(i).getPiece().findPossibleMoves(this);
-				for(Move move : possibleMovesList)
-				{
-					if(move.getTargetPosition() == absolutePosition)
-						return true;
-				}
-			}
+			if(move.getTargetPosition() == absolutePosition)
+				return true;
 		}
 		return false;
 	}
 	
 	public void executeMove(Move move)
 	{
-		
+		//fieldArray[move.getSourcePosition()]
 	}
 	
 	@Override

@@ -8,11 +8,13 @@ public class Chess
 	{
 		Model model = new Model();
 		View view = new View(model);
+		model.addObserver(view);
 		Controller controller = new Controller(model, view);
-	
+		
+		view.addController(controller);
 		try
 		{
-			Thread.sleep(1);
+			Thread.sleep(2);
 		}
 		catch(InterruptedException ex)
 		{

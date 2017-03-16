@@ -1,6 +1,7 @@
 package chess.view;
 
-import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -23,11 +24,12 @@ public final class View extends BoardTable implements Observer
 		Move move = (Move)obj;
 		redrawBoard(move);
 	}
-	
-	public void addController(ActionListener controller)
+
+	public void addController(MouseListener controller)
 	{
-		
+		super.addController(controller);
 	}
+	
 	
 	public void setInitialGameBoard()
 	{
@@ -36,11 +38,24 @@ public final class View extends BoardTable implements Observer
 	
 	private void redrawBoard(Move move)
 	{
-		//if(SimpleMove)
-		//
-		//else if(Castling)
-		//
-		//else if (Other)
-		//
+		redrawFieldPanel(move.getSourcePosition());
+		redrawFieldPanel(move.getTargetPosition());
+	}
+	
+	public final boolean isHighlited()
+	{
+		if(super.highlightedMoves == null || super.highlightedMoves.isEmpty())
+			return false;
+		return true;
+	}
+	
+	public void highlightPossibleMoves(final int fieldId )
+	{
+		super.highlightPossibleMoves(fieldId);
+	}
+	
+	public void removeHighlight()
+	{
+		super.removeHighlight();
 	}
 }

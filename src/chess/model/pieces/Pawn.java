@@ -5,6 +5,8 @@ import java.util.List;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
+import chess.model.game.Move.AttackMove;
+import chess.model.game.Move.CommonMove;
 
 public class Pawn extends Piece 
 {
@@ -23,22 +25,22 @@ public class Pawn extends Piece
 		/*
 		 * One field forward
 		 */
-		potentialAbsolutePosition = position + 8;
+		potentialAbsolutePosition = position + 8 * alliance.getDirection();
 		if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
 		{
 			if(!board.isBoardFieldOccupied(potentialAbsolutePosition))
-				possibleMovesList.add(new Move(this, potentialAbsolutePosition));
+				possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
 		}
 		/*
 		 * Two fields forward
 		 */
 		if(!wasAlreadyMoved())
 		{
-			potentialAbsolutePosition = position + 16;
+			potentialAbsolutePosition = position + 16 * alliance.getDirection();
 			if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
 			{
 				if(!board.isBoardFieldOccupied(potentialAbsolutePosition))
-					possibleMovesList.add(new Move(this, potentialAbsolutePosition));
+					possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
 			}
 		}
 		/*
@@ -46,10 +48,12 @@ public class Pawn extends Piece
 		 */
 		potentialAbsolutePosition = position + alliance.getDirection()*7;
 		if(isFieldValidToCapture(board, position, potentialAbsolutePosition))
-			possibleMovesList.add(new Move(this, potentialAbsolutePosition));
+			possibleMovesList.add(new AttackMove(board, this, board.getPieceOnField(potentialAbsolutePosition),
+					position, potentialAbsolutePosition));
 		potentialAbsolutePosition = position + alliance.getDirection()*9;
 		if(isFieldValidToCapture(board, position, potentialAbsolutePosition))
-			possibleMovesList.add(new Move(this, potentialAbsolutePosition));
+			possibleMovesList.add(new AttackMove(board, this, board.getPieceOnField(potentialAbsolutePosition),
+					position, potentialAbsolutePosition));
 		
 		return possibleMovesList;
 	}

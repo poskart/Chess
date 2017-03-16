@@ -9,6 +9,11 @@ public abstract class Player
 		this.alliance = alliance;
 	}
 	
+	public Alliance getAlliance()
+	{
+		return alliance;
+	}
+	
 	public abstract void executeMove();
 	
 	protected final Alliance alliance;
