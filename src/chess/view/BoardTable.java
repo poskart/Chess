@@ -24,21 +24,34 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+/**
+ * This class is main View class for the chess game.
+ * It represents board with separate board fields within it
+ * and provides data structures and methods that allow to view
+ * current state of the board.
+ * 
+ * @author piotr
+ *
+ */
 public class BoardTable 
 {
+	/** Main frame of the GUI */
 	private final JFrame gameFrame;
+	/** Main board panel (@JPanel extension) with separate 8x8 (@JPanel) fields */
 	private final BoardPanel gameBoardPanel;
-	
+	/** Constant Dimension of the chess board */
 	private static final Dimension BOARD_DIMENSION = new Dimension(GUISettings.BOARD_SIZE, GUISettings.BOARD_SIZE);
+	/** Constant dimension of the board field */
 	private static final Dimension FIELD_DIMENSION = new Dimension(GUISettings.FIELD_SIZE, GUISettings.FIELD_SIZE);
-
-	private static final Color DARK_FIELD_COLOR = new Color(30, 30, 30);
-	private static final Color WHITE_FIELD_COLOR = new Color(220, 220, 220);
-	
+	/** Container for currently highlighted moves */
 	protected List<Move> highlightedMoves;
-	
+	/** Variable to store board model to which this @BoardTable class refers to*/
 	private Board gameBoard;
 	
+	/**
+	 * Initializes new BoardTable (view) object
+	 * @param board is the board model
+	 */
 	public BoardTable(Board board)
 	{
 		this.gameFrame = new JFrame("Chess");
@@ -52,7 +65,10 @@ public class BoardTable
 		gameBoard = board;
 		highlightedMoves = null;
 	}
-	
+	/**
+	 * This method creates @JMenu main menu for the game.
+	 * @return new @JMenu object with specified JmenuItems
+	 */
 	private JMenu createMainMenu()
 	{
 		final JMenu mainMenu = new JMenu("Menu");
@@ -68,17 +84,28 @@ public class BoardTable
 		mainMenu.add(exit);
 		return mainMenu;
 	}
-	
+	/**
+	 * Prints initial state of the game board with complete sets
+	 * of white and black pieces.
+	 */
 	public void setInitialGameBoard()
 	{
 		gameBoardPanel.drawPieces(gameBoard.getBlackPieces(), gameBoard.getWhitePieces());
 	}
-	
+	/**
+	 * Adds controller (@MouseListener) to the bottom level @BoardPanel object
+	 * to be passed to board JPanel fields.
+	 * @param controller
+	 */
 	void addController(MouseListener controller)
 	{
 		gameBoardPanel.addController(controller);
 	}
-	
+	/**
+	 * Finds possible moves for the piece pointed by fieldId and calls
+	 * @BoardPanel object to highlight specific fields on the board.
+	 * @param fieldId - absolute position for piece on which possible moves are highlighted.
+	 */
 	public void highlightPossibleMoves(final int fieldId)
 	{
 		highlightedMoves = gameBoard.getPieceOnField(fieldId).findPossibleMoves(gameBoard);
@@ -87,7 +114,9 @@ public class BoardTable
 			gameBoardPanel.highlight(move.getTargetPosition());
 		}
 	}
-	
+	/**
+	 * Removes currently highlighted fields.
+	 */
 	public void removeHighlight()
 	{
 		if(highlightedMoves != null)
@@ -99,16 +128,31 @@ public class BoardTable
 		}
 		highlightedMoves.clear();
 	}
-	
+	/**
+	 * Redraw board field panel after its state has changed (i.e. piece was removed).
+	 * @param position - position of the field to be redrawn.
+	 */
 	public void redrawFieldPanel(final int position)
 	{
 		gameBoardPanel.fieldArray.get(position).redrawField(gameBoard);
 	}
 	
+	/**
+	 * Class which represents game board panel with separate field panels.
+	 * This class object contains all interactive 64 field panels which are
+	 * clicked on by the player. 
+	 * @author piotr
+	 *
+	 */
 	private class BoardPanel extends JPanel
 	{
+		/** Container for all 64 field panels on the chess board */ 
 		final List<FieldPanel> fieldArray;
 		
+		/**
+		 * BoardPanel constructor initializes new BoardPanel object
+		 * and add 64 new @FieldPanel objects to itself.
+		 */
 		BoardPanel()
 		{
 			super(new GridLayout(8, 8));
@@ -121,6 +165,11 @@ public class BoardTable
 			}
 		}
 		
+		/**
+		 * This method draws pieces passed as collections on the board.
+		 * @param firstPiecesSet - first set of pieces to be drawn on the board
+		 * @param secondPiecesSet - second set of pieces to be drawn on the board
+		 */
 		public void drawPieces(final Collection<Piece> firstPiecesSet, final Collection<Piece> secondPiecesSet)
 		{
 			for(final Piece piece : firstPiecesSet)
@@ -128,7 +177,12 @@ public class BoardTable
 			for(final Piece piece : secondPiecesSet)
 				fieldArray.get(piece.getPosition()).drawPiece(piece);
 		}
-		
+		/**
+		 * This method add @MouseListener object to all field panels within 
+		 * this BoardPanel object which can control corresponding field panels.
+		 * @param controller - Controller object which listen @FieldPanel objects while
+		 * clicked with mouse
+		 */
 		public void addController(MouseListener controller)
 		{
 			for(final FieldPanel panel : fieldArray)
@@ -136,41 +190,68 @@ public class BoardTable
 				panel.addMouseListener((MouseListener) controller);
 			}
 		}
-		
+		/**
+		 * Highlights correcponding field panel
+		 * @param panelId - position of field panel to be highlighted.
+		 */
 		public void highlight(final int panelId)
 		{
 			fieldArray.get(panelId).highlight();
 		}
-		
+		/**
+		 * Removes highlight from the given field panel.
+		 * @param panelId - position of field panel to remove highlight.
+		 */
 		public void removeHighlight(final int panelId)
 		{
 			fieldArray.get(panelId).removeHighlight();
 		}
 	}
 	
+	/**
+	 * This class represents field of the chess game board.
+	 * Object of this class is drawn on the GUI board view
+	 * and interacts with user by mouse actions.
+	 * @author piotr
+	 */
 	public class FieldPanel extends JPanel
 	{
+		/** Position of the field panel in the board*/
 		private final int fieldId;
+		/** Variable which keeps label with piece image*/
 		private JLabel pieceLabel;
+		/** Variable which keeps label with other (highlight) image*/
 		private JLabel otherLabel;
 		
+		/**
+		 * @FieldPanel object constructor. Initializes new FielPanel object
+		 * with the color corresponding to field position on the board
+		 * and with the corresponding piece if it exists.
+		 * @param fieldId - position of the field on the board
+		 */
 		FieldPanel(final int fieldId)
 		{
 			super(new BorderLayout());
 			this.fieldId = fieldId;
 			setPreferredSize(FIELD_DIMENSION);
-			setBackground(DARK_FIELD_COLOR);
+			setBackground(GUISettings.DARK_COLOR);
 			assignColorToField();
 			validate();
 			otherLabel = null;
 			pieceLabel = null;
 		}
-		
+		/**
+		 * Returns field position.
+		 * @return field position on the board.
+		 */
 		public final int getPanelId()
 		{
 			return fieldId;
 		}
-		
+		/**
+		 * Redraws panel on the GUI.
+		 * @param board - board model which handles the game
+		 */
 		public void redrawField(final Board board)
 		{
 			removeAll();
@@ -180,17 +261,22 @@ public class BoardTable
 			validate();
 			repaint();
 		}
-		
+		/**
+		 * Assigns color to field panel based on its position.
+		 */
 		private void assignColorToField()
 		{
 			int rowParity = fieldId/8;
 			rowParity %= 2;
 			if(fieldId % 2 == rowParity)
-				setBackground(DARK_FIELD_COLOR);
+				setBackground(GUISettings.DARK_COLOR);
 			else
-				setBackground(WHITE_FIELD_COLOR);
+				setBackground(GUISettings.WHITE_COLOR);
 		}
-		
+		/**
+		 * Draws piece image on the field panel.
+		 * @param piece - piece to be drawn on the panel.
+		 */
 		public void drawPiece(Piece piece)
 		{
 			removeAll();
@@ -213,7 +299,10 @@ public class BoardTable
 				e.printStackTrace();
 			}
 		}
-		
+		/**
+		 * Draws green dot on the field panel which means 
+		 * this is allowed field for specific piece to move to.
+		 */
 		public void highlight()
 		{
 			try
@@ -229,7 +318,9 @@ public class BoardTable
 				e.printStackTrace();
 			}
 		}
-		
+		/**
+		 * Removes highlight image from the field panel.
+		 */
 		public void removeHighlight()
 		{
 			remove(otherLabel);

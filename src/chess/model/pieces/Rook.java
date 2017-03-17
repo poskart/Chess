@@ -25,12 +25,14 @@ public class Rook extends Piece
 	public static final List<Move> findPossibleRookPieceMoves(final Board board, final Piece examinedPiece)
 	{
 		List<Move> possibleMovesList = new ArrayList<>();
-		int potentialAbsolutePosition;
+		int potentialAbsolutePosition, previouslyCheckedPosition;
 		/*
 		 * Add possible fields on the right
 		 */
-		potentialAbsolutePosition = examinedPiece.getPosition() + 1;
-		while(potentialAbsolutePosition % 8 == 0 && board.isFieldValid(potentialAbsolutePosition))
+		previouslyCheckedPosition = examinedPiece.getPosition();
+		potentialAbsolutePosition = previouslyCheckedPosition + 1;
+		while(!isNewPositionCrossingTheBoard(previouslyCheckedPosition, potentialAbsolutePosition)
+				&& board.isFieldValid(potentialAbsolutePosition))
 		{
 			if(board.isBoardFieldOccupied(potentialAbsolutePosition))
 			{
@@ -40,13 +42,16 @@ public class Rook extends Piece
 				break;
 			}
 			possibleMovesList.add(new CommonMove(board, examinedPiece, examinedPiece.getPosition(), potentialAbsolutePosition));
+			previouslyCheckedPosition = potentialAbsolutePosition;
 			potentialAbsolutePosition++;
 		}
 		/*
 		 * Add possible fields on the left
 		 */
-		potentialAbsolutePosition = examinedPiece.getPosition() - 1;
-		while(potentialAbsolutePosition % 8 != 7 && board.isFieldValid(potentialAbsolutePosition))
+		previouslyCheckedPosition = examinedPiece.getPosition();
+		potentialAbsolutePosition = previouslyCheckedPosition - 1;
+		while(!isNewPositionCrossingTheBoard(previouslyCheckedPosition, potentialAbsolutePosition)
+				&& board.isFieldValid(potentialAbsolutePosition))
 		{
 			if(board.isBoardFieldOccupied(potentialAbsolutePosition))
 			{
@@ -56,12 +61,14 @@ public class Rook extends Piece
 				break;
 			}
 			possibleMovesList.add(new CommonMove(board, examinedPiece, examinedPiece.getPosition(), potentialAbsolutePosition));
+			previouslyCheckedPosition = potentialAbsolutePosition;
 			potentialAbsolutePosition--;
 		}
 		/*
 		 * Add possible fields above
 		 */
-		potentialAbsolutePosition = examinedPiece.getPosition() + 8;
+		previouslyCheckedPosition = examinedPiece.getPosition();
+		potentialAbsolutePosition = previouslyCheckedPosition + 8;
 		while(board.isFieldValid(potentialAbsolutePosition))
 		{
 			if(board.isBoardFieldOccupied(potentialAbsolutePosition))
@@ -72,12 +79,14 @@ public class Rook extends Piece
 				break;
 			}
 			possibleMovesList.add(new CommonMove(board, examinedPiece, examinedPiece.getPosition(), potentialAbsolutePosition));
+			previouslyCheckedPosition = potentialAbsolutePosition;
 			potentialAbsolutePosition += 8;
 		}
 		/*
 		 * Add possible fields on the bottom
 		 */
-		potentialAbsolutePosition = examinedPiece.getPosition() - 8;
+		previouslyCheckedPosition = examinedPiece.getPosition();
+		potentialAbsolutePosition = previouslyCheckedPosition - 8;
 		while(board.isFieldValid(potentialAbsolutePosition))
 		{
 			if(board.isBoardFieldOccupied(potentialAbsolutePosition))
@@ -88,6 +97,7 @@ public class Rook extends Piece
 				break;
 			}
 			possibleMovesList.add(new CommonMove(board, examinedPiece, examinedPiece.getPosition(), potentialAbsolutePosition));
+			previouslyCheckedPosition = potentialAbsolutePosition;
 			potentialAbsolutePosition -= 8;
 		}
 		return possibleMovesList;

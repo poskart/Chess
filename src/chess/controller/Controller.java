@@ -20,7 +20,7 @@ public final class Controller implements MouseListener
 		this.gameModel = model;
 		this.gameView = view;
 		this.previousSource = null;
-		this.lastClickedPanelId = 0;
+		this.lastClickedPanelId = -1;
 	}
 	
 	public void initialize()

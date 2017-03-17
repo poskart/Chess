@@ -27,7 +27,8 @@ public class Knight extends Piece
 		for(int offset : possibleMoveOffset)
 		{
 			potentialAbsolutePosition = this.position + offset;
-			if(board.isFieldValid(potentialAbsolutePosition))
+			if(board.isFieldValid(potentialAbsolutePosition) && 
+					!isKnightPotentialPositionCrossingBorder(position, potentialAbsolutePosition))
 			{
 				if(board.isBoardFieldOccupied(potentialAbsolutePosition))
 				{
@@ -46,5 +47,21 @@ public class Knight extends Piece
 	public String toString()
 	{
 		return PieceType.KNIGHT.toString();
+	}
+	
+	private final boolean isKnightPotentialPositionCrossingBorder(
+			final int currentPosition,
+			final int targetPosition)
+	{
+		if(currentPosition % 8 == 6 && targetPosition % 8 == 0)
+			return true;
+		if(currentPosition % 8 == 7 && (targetPosition % 8 == 0 || targetPosition % 8 == 1))
+			return true;
+		if(currentPosition % 8 == 1 && targetPosition % 8 == 7)
+			return true;
+		if(currentPosition % 8 == 0 && (targetPosition % 8 == 7 || targetPosition % 8 == 6))
+			return true;
+
+		return false;
 	}
 }

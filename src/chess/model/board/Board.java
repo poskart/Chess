@@ -137,7 +137,9 @@ public class Board
 	
 	public final Piece getPieceOnField(int absolutePosition)
 	{
-		return fieldArray.get(absolutePosition).getPiece();
+		if(isFieldValid(absolutePosition))
+			return fieldArray.get(absolutePosition).getPiece();
+		return null;
 	}
 	
 	public final Collection<Piece> getBlackPieces()

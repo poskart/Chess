@@ -36,10 +36,11 @@ public class Pawn extends Piece
 		 */
 		if(!wasAlreadyMoved())
 		{
+			int betweenPosition = potentialAbsolutePosition;
 			potentialAbsolutePosition = position + 16 * alliance.getDirection();
 			if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
 			{
-				if(!board.isBoardFieldOccupied(potentialAbsolutePosition))
+				if(!board.isBoardFieldOccupied(potentialAbsolutePosition) && !board.isBoardFieldOccupied(betweenPosition))
 					possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
 			}
 		}
