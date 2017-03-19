@@ -101,6 +101,25 @@ public class Board
 			return calculateAllLegalMoves(whitePieces);
 	}
 	
+	private Collection<Move> calculateAllLegalAttackMoves(final Collection<Piece> piecesToExamine)
+	{
+		List<Move> legalMoves = new ArrayList<>();
+		
+		for(Piece piece : piecesToExamine)
+		{
+			legalMoves.addAll(piece.findPossibleAttackMoves(this));
+		}
+		return legalMoves;
+	}
+	
+	public final Collection<Move> getAllLegalAttackMovesOfAlliance(final Alliance alliance)
+	{
+		if(alliance == Alliance.BLACK)
+			return calculateAllLegalAttackMoves(blackPieces);
+		else
+			return calculateAllLegalAttackMoves(whitePieces);
+	}
+	
 	/**
 	 * Removes all moves which can result in check of its own king
 	 * 
@@ -144,25 +163,6 @@ public class Board
 		return true;
 	}
 	
-	public final Collection<Move> getAllPawnAttackMovesOfAlliance(final Alliance alliance)
-	{
-		if(alliance == Alliance.BLACK)
-			return getAllPawnAttackMoves(blackPieces);
-		else
-			return getAllPawnAttackMoves(whitePieces);
-	}
-	
-	private final Collection<Move> getAllPawnAttackMoves(final Collection<Piece> piecesToExamine)
-	{
-		List<Move> pawnAttackMoves = new ArrayList<>();
-		for(final Piece piece : piecesToExamine)
-		{
-			if(piece.getPieceType() == Piece.PieceType.PAWN)
-				pawnAttackMoves.addAll(piece.findPossibleAttackMoves(this));
-		}
-		return pawnAttackMoves;
-	}
-	
 	public void recomputePieces(Alliance alliance)
 	{
 		if(alliance == Alliance.BLACK)
@@ -183,13 +183,6 @@ public class Board
 		fieldArray.remove(position);
 		fieldArray.add(position, Field.createField(position, null));
 		return piece;
-	}
-	
-	private Collection<Move> calculateAllLegalMoves(final Piece pieceToExamine)
-	{
-		List<Move> legalMoves = new ArrayList<>();
-		legalMoves.addAll(pieceToExamine.findPossibleMoves(this));
-		return legalMoves;
 	}
 	
 	public final boolean isBoardFieldOccupied(int position)
@@ -240,10 +233,9 @@ public class Board
 	public final boolean isFieldUnderAttack(final int absolutePosition, Alliance defenderAlliance)
 	{
 		List<Move> possibleMovesList = new ArrayList<>();
-		/*
-		 * Check all legal moves of pieces
-		 */
-		possibleMovesList = (ArrayList<Move>)getAllLegalMovesOfAlliance(defenderAlliance.getContraryAlliance());
+		/* Check all legal attack moves of pieces */
+		possibleMovesList = (ArrayList<Move>)getAllLegalAttackMovesOfAlliance(
+				defenderAlliance.getContraryAlliance());
 		for(Move move : possibleMovesList)
 		{
 			if(move.getTargetPosition() == absolutePosition)
@@ -255,17 +247,6 @@ public class Board
 				}
 				else
 					return true;
-			}
-		}
-		/*
-		 * Check all attack moves of pawns
-		 */
-		possibleMovesList = (ArrayList<Move>)getAllPawnAttackMovesOfAlliance(defenderAlliance.getContraryAlliance());
-		for(Move move : possibleMovesList)
-		{
-			if(move.getTargetPosition() == absolutePosition)
-			{
-				return true;
 			}
 		}
 		return false;

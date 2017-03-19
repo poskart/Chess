@@ -3,8 +3,6 @@ package chess.controller;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.management.modelmbean.ModelMBeanInfoSupport;
-
 import chess.model.Model;
 import chess.model.pieces.Piece;
 import chess.view.BoardTable.FieldPanel;

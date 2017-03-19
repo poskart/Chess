@@ -1,7 +1,6 @@
 package chess.view;
 
 import java.awt.event.MouseListener;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -23,6 +22,10 @@ public final class View extends BoardTable implements Observer
 	{
 		Move move = (Move)obj;
 		redrawBoard(move);
+		if(move.isCastlingMove())
+		{
+			redrawBoard(move.getSpecialMove());
+		}
 		if(gameModel.isGameOver())
 			printResult(gameModel.getWinningAlliance());
 	}

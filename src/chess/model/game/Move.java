@@ -38,6 +38,11 @@ public abstract class Move
 		return null;
 	}
 	
+	public Move getSpecialMove()
+	{
+		return null;
+	}
+	
 	public void execute()
 	{
 		if(!movedPiece.wasAlreadyMoved())
@@ -124,6 +129,52 @@ public abstract class Move
 		{
 			board.removePieceFromField(movedPiece, targetPosition);
 			board.putPieceOnField(movedPiece, sourcePosition);
+		}
+	}
+	
+	public static class CastlingMove extends Move
+	{	
+		final int rookPosition;
+		public CastlingMove(final Board board, 
+				final Piece movedPiece,
+				final int sourcePosition, 
+				final int targetPosition, 
+				final int rookPosition)
+		{
+			super(board, movedPiece, sourcePosition, targetPosition);
+			this.rookPosition = rookPosition;
+		}
+		
+		@Override
+		public void execute()
+		{
+			super.execute();
+			board.removePieceFromField(movedPiece, sourcePosition);
+			board.putPieceOnField(movedPiece, targetPosition);
+			final Piece tmpRook = board.getPieceOnField(rookPosition);
+			board.removePieceFromField(tmpRook, rookPosition);
+			board.putPieceOnField(tmpRook, (sourcePosition + targetPosition)/2);
+		}
+		@Override
+		public void undo()
+		{
+			board.removePieceFromField(movedPiece, targetPosition);
+			board.putPieceOnField(movedPiece, sourcePosition);
+			final int rookNewPosition = (sourcePosition + targetPosition)/2;
+			final Piece tmpRook = board.getPieceOnField(rookNewPosition);
+			board.removePieceFromField(tmpRook, rookNewPosition);
+			board.putPieceOnField(tmpRook, rookPosition);
+		}
+		@Override
+		public final Move getSpecialMove()
+		{
+			return new CommonMove(board, board.getPieceOnField(rookPosition),
+					rookPosition, (sourcePosition + targetPosition)/2);
+		}
+		@Override
+		public final boolean isCastlingMove()
+		{
+			return true;
 		}
 	}
 }

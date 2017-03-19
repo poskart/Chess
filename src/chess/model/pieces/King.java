@@ -7,19 +7,43 @@ import chess.model.board.Board;
 import chess.model.game.Move;
 import chess.model.game.Move.AttackMove;
 import chess.model.game.Move.CommonMove;
+import chess.model.game.Move.CastlingMove;
 
 public class King extends Piece 
 {
 	private static final int[] possibleMoveOffset = {-9, -8, -7, -1, 1, 7, 8, 9};
-	
+	/**
+	 * King constructor, initializes king piece with alliance and given position
+	 * 
+	 * @param position new king's position on the board
+	 * @param alliance new king's alliance
+	 */
 	public King(final int position, final Alliance alliance)
 	{
 		super(position, alliance);
 		this.pieceType = PieceType.KING;
 	}
-	
+	/**
+	 * Finds available legal king moves including castling
+	 * 
+	 * @param board board object used in the game
+	 * @return list of king possible moves
+	 */
 	@Override
 	public List<Move> findPossibleMoves(Board board)
+	{
+		List<Move> possibleMovesList = findPossibleAttackMoves(board);
+		possibleMovesList = addCastlingMoves(possibleMovesList, board);
+		return possibleMovesList;
+	}
+	/**
+	 * Finds available legal attack moves for king (without castling)
+	 * 
+	 * @param board board object used in the game
+	 * @return list of king possible attack moves
+	 */
+	@Override	
+	public List<Move> findPossibleAttackMoves(final Board board)
 	{
 		List<Move> possibleMovesList = new ArrayList<>();
 		int potentialAbsolutePosition;
@@ -41,11 +65,6 @@ public class King extends Piece
 			}
 		}
 		return possibleMovesList;
-	}
-	@Override	
-	public List<Move> findPossibleAttackMoves(final Board board)
-	{
-		return findPossibleMoves(board);
 	}
 	
 	private final boolean isPositionValidTargetForKing(Board board, int currentPosition, int targetPosition)
@@ -95,6 +114,76 @@ public class King extends Piece
 		return true;
 	}
 	
+	/**
+	 * Adds all possible castling moves for this king
+	 * 
+	 * @param possibleMoves is the list of all possible moves to which castling moves
+	 * will be added
+	 * @param board board object which game is using
+	 * @return list of possible moves including castling
+	 */
+	public List<Move> addCastlingMoves(List<Move> possibleMoves, final Board board)
+	{
+		if(!wasAlreadyMoved() && isInCheck(board) == null)
+		{
+			int queenSideRookPosition = position - position % 8;
+			int noQueenSideRookPosition = queenSideRookPosition + 7;
+			/** Change rook positions */
+			if(position % 8 == 3)
+			{
+				queenSideRookPosition += 7;
+				noQueenSideRookPosition -= 7;
+			}
+			/** Check Queen side castling */
+			if(board.isBoardFieldOccupied(queenSideRookPosition) && 
+					!board.getPieceOnField(queenSideRookPosition).wasAlreadyMoved())
+			{
+				final int isRookPositionHigher = queenSideRookPosition > position? 1 : -1;
+				int betweenAttackedFieldsCounter = 0;
+				for(int betweenPosition = position + isRookPositionHigher;
+						betweenPosition != queenSideRookPosition;
+						betweenPosition += isRookPositionHigher)
+				{
+					if(board.isBoardFieldOccupied(betweenPosition))
+						break;
+					if(betweenAttackedFieldsCounter < 2)
+					{
+						if(board.isFieldUnderAttack(betweenPosition, this.alliance))
+							break;
+					}
+					betweenAttackedFieldsCounter++;
+				}
+				if(betweenAttackedFieldsCounter >= 3)
+					possibleMoves.add(new CastlingMove(
+							board, this, position, position + isRookPositionHigher*2, queenSideRookPosition));
+			}
+			/** Check no Queen side castling */
+			if(board.isBoardFieldOccupied(noQueenSideRookPosition) && 
+					!board.getPieceOnField(noQueenSideRookPosition).wasAlreadyMoved())
+			{
+				final int isRookPositionHigher = noQueenSideRookPosition > position? 1 : -1;
+				int betweenPosition;
+				for(betweenPosition = position + isRookPositionHigher;
+						betweenPosition != noQueenSideRookPosition;
+						betweenPosition += isRookPositionHigher)
+				{
+					if(board.isBoardFieldOccupied(betweenPosition))
+						break;
+					if(board.isFieldUnderAttack(betweenPosition, this.alliance))
+						break;
+				}
+				if(betweenPosition == noQueenSideRookPosition)
+					possibleMoves.add(new CastlingMove(
+							board, this, position, position + isRookPositionHigher*2, noQueenSideRookPosition));
+			}
+		}
+		return possibleMoves;
+	}
+	/**
+	 * Check if king has possible moves available
+	 * @param board board object used in the game
+	 * @return true if king has legal moves, false otherwise
+	 */
 	public final boolean hasPossibleMoves(final Board board)
 	{
 		List<Move> possibleMovesList = findPossibleMoves(board);
@@ -102,14 +191,20 @@ public class King extends Piece
 			return false;
 		return true;
 	}
-	
+	/**
+	 * Determine whether king is in check or not
+	 * @param board board object used in the game
+	 * @return true if king is in check, false otherwise
+	 */
 	public final King isInCheck(Board board)
 	{
 		if(board.isFieldUnderAttack(position, alliance))
 			return this;
 		return null;
 	}
-	
+	/**
+	 * Prints king sign "K"
+	 */
 	@Override
 	public String toString()
 	{
