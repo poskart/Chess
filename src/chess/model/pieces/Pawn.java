@@ -59,6 +59,28 @@ public class Pawn extends Piece
 		return possibleMovesList;
 	}
 	
+	@Override	
+	public List<Move> findPossibleAttackMoves(final Board board)
+	{
+		List<Move> possibleMovesList = new ArrayList<>();
+		int potentialAbsolutePosition;
+		/*
+		 * Capturing fields (diagonal)
+		 */
+		potentialAbsolutePosition = position + alliance.getDirection()*7;
+		if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition) &&
+				!isNewPositionCrossingTheBoard(position, potentialAbsolutePosition))
+			possibleMovesList.add(new AttackMove(board, this, board.getPieceOnField(potentialAbsolutePosition),
+					position, potentialAbsolutePosition));
+		potentialAbsolutePosition = position + alliance.getDirection()*9;
+		if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition) &&
+				!isNewPositionCrossingTheBoard(position, potentialAbsolutePosition))
+			possibleMovesList.add(new AttackMove(board, this, board.getPieceOnField(potentialAbsolutePosition),
+					position, potentialAbsolutePosition));
+		
+		return possibleMovesList;
+	}
+	
 	private final boolean isFieldValidToCapture(
 			Board board, final int currentPosition, final int targetPosition)
 	{

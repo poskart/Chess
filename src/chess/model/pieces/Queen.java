@@ -23,7 +23,11 @@ public class Queen extends Piece
 		possibleMovesList.addAll(Bishop.findPossibleBishopPieceMoves(board, this));
 		return possibleMovesList;
 	}
-
+	@Override	
+	public List<Move> findPossibleAttackMoves(final Board board)
+	{
+		return findPossibleMoves(board);
+	}
 	@Override
 	public String toString()
 	{

@@ -2,6 +2,7 @@ package chess.model.board;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import chess.model.game.Move;
@@ -13,6 +14,8 @@ public class Board
 	private List<Field> fieldArray;
 	private Collection<Piece> whitePieces;
 	private Collection<Piece> blackPieces;
+	private King wKing;
+	private King bKing;
 	private Alliance activeAlliance;
 	
 	public final static int BOARD_FIELDS_NUMBER = 64;
@@ -32,7 +35,8 @@ public class Board
 		fieldArray.add(1, Field.createField(1, new Knight(1, Alliance.WHITE)));
 		fieldArray.add(2, Field.createField(2, new Bishop(2, Alliance.WHITE)));
 		fieldArray.add(3, Field.createField(3, new Queen(3, Alliance.WHITE)));
-		fieldArray.add(4, Field.createField(4, new King(4, Alliance.WHITE)));
+		wKing = new King(4, Alliance.WHITE);
+		fieldArray.add(4, Field.createField(4, wKing));
 		fieldArray.add(5, Field.createField(5, new Bishop(5, Alliance.WHITE)));
 		fieldArray.add(6, Field.createField(6, new Knight(6, Alliance.WHITE)));
 		fieldArray.add(7, Field.createField(7, new Rook(7, Alliance.WHITE)));
@@ -60,7 +64,8 @@ public class Board
 		fieldArray.add(57, Field.createField(57, new Knight(57, Alliance.BLACK)));
 		fieldArray.add(58, Field.createField(58, new Bishop(58, Alliance.BLACK)));
 		fieldArray.add(59, Field.createField(59, new Queen(59, Alliance.BLACK)));
-		fieldArray.add(60, Field.createField(60, new King(60, Alliance.BLACK)));
+		bKing = new King(60, Alliance.BLACK);
+		fieldArray.add(60, Field.createField(60, bKing));
 		fieldArray.add(61, Field.createField(61, new Bishop(61, Alliance.BLACK)));
 		fieldArray.add(62, Field.createField(62, new Knight(62, Alliance.BLACK)));
 		fieldArray.add(63, Field.createField(63, new Rook(63, Alliance.BLACK)));
@@ -94,6 +99,68 @@ public class Board
 			return calculateAllLegalMoves(blackPieces);
 		else
 			return calculateAllLegalMoves(whitePieces);
+	}
+	
+	/**
+	 * Removes all moves which can result in check of its own king
+	 * 
+	 * @param possibleMoves list of all possible moves for all pieces
+	 * @return modified list of possible moves without that moves which can result in self-check
+	 */
+	public final Collection<Move> removeAllCheckMakingMoves(final Collection<Move> possibleMoves)
+	{
+		for(Iterator<Move> it = possibleMoves.iterator(); it.hasNext();)
+		{
+			if(isCheckAfterMove(it.next()))
+				it.remove();
+		}
+		return possibleMoves;
+	}
+	
+	/**
+	 * Checks if move can be executed without making own king checked.
+	 * This method simulates move execution and check if there is check
+	 * possible in result.
+	 * 
+	 * @param move move to be checked whether or not causes check
+	 * @return true if this move results in self-check, false otherwise
+	 */
+	private final boolean isCheckAfterMove(final Move move)
+	{
+		final Piece isOwnKingCheckedAfterMove;
+		final boolean wasPieceAlreadyMoved = move.getMovedPiece().wasAlreadyMoved();
+		move.execute();
+		/* Recompute remaining enemy pieces */
+		if(move.isAttackMove())
+			recomputePieces(move.getAttackedPiece().getAlliance());
+		isOwnKingCheckedAfterMove = isKingInCheck(move.getMovedPiece().getAlliance());
+		move.undo();
+		/* Recompute remaining enemy pieces */
+		if(move.isAttackMove())
+			recomputePieces(move.getAttackedPiece().getAlliance());
+		move.getMovedPiece().setFirstMoveFlag(wasPieceAlreadyMoved);
+		if(isOwnKingCheckedAfterMove == null)
+			return false;
+		return true;
+	}
+	
+	public final Collection<Move> getAllPawnAttackMovesOfAlliance(final Alliance alliance)
+	{
+		if(alliance == Alliance.BLACK)
+			return getAllPawnAttackMoves(blackPieces);
+		else
+			return getAllPawnAttackMoves(whitePieces);
+	}
+	
+	private final Collection<Move> getAllPawnAttackMoves(final Collection<Piece> piecesToExamine)
+	{
+		List<Move> pawnAttackMoves = new ArrayList<>();
+		for(final Piece piece : piecesToExamine)
+		{
+			if(piece.getPieceType() == Piece.PieceType.PAWN)
+				pawnAttackMoves.addAll(piece.findPossibleAttackMoves(this));
+		}
+		return pawnAttackMoves;
 	}
 	
 	public void recomputePieces(Alliance alliance)
@@ -162,22 +229,46 @@ public class Board
 		this.activeAlliance = alliance;
 	}
 	
+	public final Piece isKingInCheck(final Alliance alliance)
+	{
+		if(alliance == Alliance.WHITE)
+			return wKing.isInCheck(this);
+		else
+			return bKing.isInCheck(this);		
+	}
+	
 	public final boolean isFieldUnderAttack(final int absolutePosition, Alliance defenderAlliance)
 	{
 		List<Move> possibleMovesList = new ArrayList<>();
+		/*
+		 * Check all legal moves of pieces
+		 */
 		possibleMovesList = (ArrayList<Move>)getAllLegalMovesOfAlliance(defenderAlliance.getContraryAlliance());
-
 		for(Move move : possibleMovesList)
 		{
 			if(move.getTargetPosition() == absolutePosition)
+			{
+				if(move.getMovedPiece().getPieceType() == Piece.PieceType.PAWN)
+				{
+					if(move.isAttackMove())
+						return true;
+				}
+				else
+					return true;
+			}
+		}
+		/*
+		 * Check all attack moves of pawns
+		 */
+		possibleMovesList = (ArrayList<Move>)getAllPawnAttackMovesOfAlliance(defenderAlliance.getContraryAlliance());
+		for(Move move : possibleMovesList)
+		{
+			if(move.getTargetPosition() == absolutePosition)
+			{
 				return true;
+			}
 		}
 		return false;
-	}
-	
-	public void executeMove(Move move)
-	{
-		//fieldArray[move.getSourcePosition()]
 	}
 	
 	@Override

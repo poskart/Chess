@@ -58,6 +58,12 @@ public class Bishop extends Piece
 		return possibleMovesList;
 	}
 	
+	@Override	
+	public List<Move> findPossibleAttackMoves(final Board board)
+	{
+		return findPossibleMoves(board);
+	}
+	
 	private static final boolean bishopAttackLineCrossedBoardBorder(final int currentPosition, final int previousPosition)
 	{
 		int roundedTo8DownDifference = (currentPosition - currentPosition % 8) - (previousPosition - previousPosition % 8);

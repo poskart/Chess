@@ -44,18 +44,7 @@ public abstract class Move
 			movedPiece.setFirstMoveFlag(true);
 	}
 	
-	public static class MoveCreator
-	{
-		private MoveCreator()
-		{
-			throw new RuntimeException("Not instantiable class!");
-		}
-		
-//		public static Move createMove(final Board board, final int sourcePosition, final int destinationPosition)
-//		{
-//			for(final Move move : board.)
-//		}
-	}
+	abstract public void undo();
 	
 	public boolean isAttackMove()
 	{
@@ -63,6 +52,11 @@ public abstract class Move
 	}
 	
 	public boolean isCastlingMove()
+	{
+		return false;
+	}
+	
+	public boolean isCheckMateMove()
 	{
 		return false;
 	}
@@ -94,7 +88,13 @@ public abstract class Move
 			board.removePieceFromField(movedPiece, sourcePosition);
 			board.putPieceOnField(movedPiece, targetPosition);
 		}
-		
+		@Override
+		public void undo()
+		{
+			board.removePieceFromField(movedPiece, targetPosition);
+			board.putPieceOnField(movedPiece, sourcePosition);
+			board.putPieceOnField(attackedPiece, targetPosition);
+		}
 		@Override
 		public boolean isAttackMove()
 		{
@@ -118,6 +118,12 @@ public abstract class Move
 			super.execute();
 			Piece tmpPiece = board.removePieceFromField(movedPiece, sourcePosition);
 			board.putPieceOnField(tmpPiece, targetPosition);
+		}
+		@Override
+		public void undo()
+		{
+			board.removePieceFromField(movedPiece, targetPosition);
+			board.putPieceOnField(movedPiece, sourcePosition);
 		}
 	}
 }

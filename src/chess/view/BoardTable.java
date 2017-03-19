@@ -8,6 +8,8 @@ import chess.model.pieces.Piece;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +21,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -40,29 +43,42 @@ public class BoardTable
 	/** Main board panel (@JPanel extension) with separate 8x8 (@JPanel) fields */
 	private final BoardPanel gameBoardPanel;
 	/** Constant Dimension of the chess board */
-	private static final Dimension BOARD_DIMENSION = new Dimension(GUISettings.BOARD_SIZE, GUISettings.BOARD_SIZE);
+	private static final Dimension BOARD_DIMENSION = 
+			new Dimension(GUISettings.BOARD_SIZE, GUISettings.BOARD_SIZE);
 	/** Constant dimension of the board field */
-	private static final Dimension FIELD_DIMENSION = new Dimension(GUISettings.FIELD_SIZE, GUISettings.FIELD_SIZE);
+	private static final Dimension FIELD_DIMENSION =
+			new Dimension(GUISettings.FIELD_SIZE, GUISettings.FIELD_SIZE);
 	/** Container for currently highlighted moves */
 	protected List<Move> highlightedMoves;
 	/** Variable to store board model to which this @BoardTable class refers to*/
 	private Board gameBoard;
-	
-	/**
+		/**
 	 * Initializes new BoardTable (view) object
 	 * @param board is the board model
 	 */
 	public BoardTable(Board board)
 	{
-		this.gameFrame = new JFrame("Chess");
-		this.gameFrame.setSize(BOARD_DIMENSION);
+		gameBoard = board;
+		gameFrame = new JFrame("Chess");
+		gameFrame.setTitle("Chess");
+		gameFrame.setSize(BOARD_DIMENSION);
 		final JMenuBar gameMenuBar = new JMenuBar();
 		gameMenuBar.add(createMainMenu());
-		this.gameFrame.setJMenuBar(gameMenuBar);
+		gameFrame.setJMenuBar(gameMenuBar);
+		
 		gameBoardPanel = new BoardPanel();
-		this.gameFrame.add(this.gameBoardPanel, BorderLayout.CENTER);
-		this.gameFrame.setVisible(true);
-		gameBoard = board;
+		//gameFrame.setContentPane(gameBoardPanel);
+		gameFrame.add(gameBoardPanel, BorderLayout.CENTER);
+		
+//		JLabel winLabel = new JLabel("Check mate, white wins!");
+//		winLabel.setFont(new Font("Arial", 1, 32));
+//		JPanel panel = new JPanel();
+//		panel.setPreferredSize(new Dimension(GUISettings.GAME_OVER_PANEL_LENGTH, 
+//				GUISettings.GAME_OVER_PANEL_HIGHT));
+//		panel.setBackground(new Color(0, 254, 0, 125));
+//		panel.add(winLabel);
+
+		gameFrame.setVisible(true);
 		highlightedMoves = null;
 	}
 	/**
@@ -84,6 +100,35 @@ public class BoardTable
 		mainMenu.add(exit);
 		return mainMenu;
 	}
+	
+	/**
+	 * Prints match result on the screen when game is finished
+	 * 
+	 * @param winningAlliance is an alliance (color) of the winning side.
+	 */
+	public void printResult(final Alliance winningAlliance)
+	{
+		JLabel winLabel = null;
+		if(winningAlliance == null)
+			winLabel = new JLabel("Game over: Stalemate");
+		else if(winningAlliance == Alliance.BLACK)
+			winLabel = new JLabel("Check mate, black wins!");
+		else
+			winLabel = new JLabel("Check mate, white wins!");
+		winLabel.setFont(new Font("Arial", 1, 32));
+		JPanel panel = new JPanel();
+		panel.setPreferredSize(new Dimension(GUISettings.GAME_OVER_PANEL_LENGTH, 
+				GUISettings.GAME_OVER_PANEL_HIGHT));
+		panel.setBackground(new Color(20, 80, 7, 160));
+		panel.add(winLabel, BorderLayout.CENTER);
+		panel.setLocation(20, 300);
+		gameFrame.remove(gameBoardPanel);
+		gameFrame.add(panel, BorderLayout.CENTER);
+		panel.validate();
+		panel.repaint();
+		this.gameFrame.setVisible(true);
+	}
+	
 	/**
 	 * Prints initial state of the game board with complete sets
 	 * of white and black pieces.
@@ -109,6 +154,7 @@ public class BoardTable
 	public void highlightPossibleMoves(final int fieldId)
 	{
 		highlightedMoves = gameBoard.getPieceOnField(fieldId).findPossibleMoves(gameBoard);
+		gameBoard.removeAllCheckMakingMoves(highlightedMoves);
 		for(Move move : highlightedMoves)
 		{
 			gameBoardPanel.highlight(move.getTargetPosition());
@@ -170,7 +216,8 @@ public class BoardTable
 		 * @param firstPiecesSet - first set of pieces to be drawn on the board
 		 * @param secondPiecesSet - second set of pieces to be drawn on the board
 		 */
-		public void drawPieces(final Collection<Piece> firstPiecesSet, final Collection<Piece> secondPiecesSet)
+		public void drawPieces(final Collection<Piece> firstPiecesSet, 
+				final Collection<Piece> secondPiecesSet)
 		{
 			for(final Piece piece : firstPiecesSet)
 				fieldArray.get(piece.getPosition()).drawPiece(piece);
@@ -236,6 +283,8 @@ public class BoardTable
 			setPreferredSize(FIELD_DIMENSION);
 			setBackground(GUISettings.DARK_COLOR);
 			assignColorToField();
+			if(gameBoard.getPieceOnField(fieldId) != null)
+				drawPiece(gameBoard.getPieceOnField(fieldId));
 			validate();
 			otherLabel = null;
 			pieceLabel = null;

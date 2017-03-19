@@ -42,7 +42,12 @@ public class King extends Piece
 		}
 		return possibleMovesList;
 	}
-
+	@Override	
+	public List<Move> findPossibleAttackMoves(final Board board)
+	{
+		return findPossibleMoves(board);
+	}
+	
 	private final boolean isPositionValidTargetForKing(Board board, int currentPosition, int targetPosition)
 	{
 		/*
@@ -66,18 +71,43 @@ public class King extends Piece
 		 */
 		if(board.getActiveAlliance() == getAlliance())
 		{
+			/* 
+			 * Temporarily remove this king piece from its field to check
+			 *  if each of the field surrounding it could be under attack 
+			 */
+			board.removePieceFromField(this, this.position);
+			boolean tmpIsValidPositionForKing;
+			boolean isTargetFieldOccupied = board.isBoardFieldOccupied(targetPosition);
+			Piece targetPositionEnemyPiece = null;
+			if(isTargetFieldOccupied)
+				targetPositionEnemyPiece = board.removePieceFromField(
+						board.getPieceOnField(targetPosition), targetPosition);
 			if(board.isFieldUnderAttack(targetPosition, getAlliance()))
-				return false;
+				tmpIsValidPositionForKing = false;
+			else
+				tmpIsValidPositionForKing = true;
+			
+			if(isTargetFieldOccupied)
+				board.putPieceOnField(targetPositionEnemyPiece, targetPosition);
+			board.putPieceOnField(this, this.position);
+			return tmpIsValidPositionForKing;
 		}
 		return true;
 	}
 	
-	public final boolean isCheck(final Board board)
+	public final boolean hasPossibleMoves(final Board board)
 	{
 		List<Move> possibleMovesList = findPossibleMoves(board);
 		if (possibleMovesList.isEmpty())
-			return true;
-		return false;
+			return false;
+		return true;
+	}
+	
+	public final King isInCheck(Board board)
+	{
+		if(board.isFieldUnderAttack(position, alliance))
+			return this;
+		return null;
 	}
 	
 	@Override

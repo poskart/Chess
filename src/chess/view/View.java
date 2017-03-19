@@ -23,6 +23,8 @@ public final class View extends BoardTable implements Observer
 	{
 		Move move = (Move)obj;
 		redrawBoard(move);
+		if(gameModel.isGameOver())
+			printResult(gameModel.getWinningAlliance());
 	}
 
 	public void addController(MouseListener controller)

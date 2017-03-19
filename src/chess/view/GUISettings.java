@@ -17,12 +17,17 @@ public final class GUISettings
 	public static final int FIELD_SIZE = 10;
 	
 	/** Color of the light pieces of the board */
-	public static final Color WHITE_COLOR = new Color(220, 200, 120);
+	public static final Color WHITE_COLOR = new Color(255, 250, 200);
 	/** Color of the dark pieces of the board */
-	public static final Color DARK_COLOR = new Color(30, 30, 30);
+	public static final Color DARK_COLOR = new Color(135, 65, 20);
 	
 	/** Relative path to main directory with images of pieces */
 	public static final String PIECE_IMAGES_PATH = "img/pieces/";
 	/** Relative path to image with allowed move image */
 	public static final String HIGHLIGHT_IMAGE_PATH = "img/aux/allowed.gif";
+	
+	/** Game over panel length */
+	public static final int GAME_OVER_PANEL_LENGTH = 400;
+	/** Game over panel hight */
+	public static final int GAME_OVER_PANEL_HIGHT = 280;
 }

@@ -42,7 +42,11 @@ public class Knight extends Piece
 		}
 		return possibleMovesList;
 	}
-	
+	@Override	
+	public List<Move> findPossibleAttackMoves(final Board board)
+	{
+		return findPossibleMoves(board);
+	}
 	@Override
 	public String toString()
 	{

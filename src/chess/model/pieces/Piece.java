@@ -22,6 +22,8 @@ public abstract class Piece
 	
 	public abstract List<Move> findPossibleMoves(final Board board);
 	
+	public abstract List<Move> findPossibleAttackMoves(final Board board);
+	
 	public final int getPosition()
 	{
 		return position;

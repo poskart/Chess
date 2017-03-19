@@ -3,6 +3,8 @@ package chess.controller;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.management.modelmbean.ModelMBeanInfoSupport;
+
 import chess.model.Model;
 import chess.model.pieces.Piece;
 import chess.view.BoardTable.FieldPanel;
@@ -31,23 +33,26 @@ public final class Controller implements MouseListener
 	@Override
 	public void mouseClicked(MouseEvent e)
 	{
-		FieldPanel panel = (FieldPanel)e.getSource();
-		if(panel == (FieldPanel)previousSource)
-			return;
-		final int panelId = panel.getPanelId();
-		if(gameView.isHighlited())
-			gameView.removeHighlight();
-		if(gameModel.getGameBoard().isBoardFieldOccupied(panelId))
+		if(!gameModel.isGameOver())
 		{
-			Piece piece = gameModel.getGameBoard().getPieceOnField(panelId);
-			if(gameModel.getActivePlayer().getAlliance() == piece.getAlliance())
-				gameView.highlightPossibleMoves(panelId);
+			FieldPanel panel = (FieldPanel)e.getSource();
+			if(panel == (FieldPanel)previousSource)
+				return;
+			final int panelId = panel.getPanelId();
+			if(gameView.isHighlited())
+				gameView.removeHighlight();
+			if(gameModel.getGameBoard().isBoardFieldOccupied(panelId))
+			{
+				Piece piece = gameModel.getGameBoard().getPieceOnField(panelId);
+				if(gameModel.getActivePlayer().getAlliance() == piece.getAlliance())
+					gameView.highlightPossibleMoves(panelId);
+			}
+			gameModel.handleTwoTilesPressed(panelId, lastClickedPanelId);
+			
+			System.out.println(panel.getPanelId());
+			previousSource = (FieldPanel)panel;
+			lastClickedPanelId = panel.getPanelId();
 		}
-		gameModel.handleTwoTilesPressed(panelId, lastClickedPanelId);
-		
-		System.out.println(panel.getPanelId());
-		previousSource = (FieldPanel)panel;
-		lastClickedPanelId = panel.getPanelId();
 	}
 
 	@Override
@@ -62,22 +67,4 @@ public final class Controller implements MouseListener
 	@Override
 	public void mouseReleased(MouseEvent e){
 	}
-	
-//	@Override
-//	public void actionPerformed(ActionEvent e)
-//	{
-//		if(isMyTurn)
-//		{
-//			e.getSource();
-//			if(podswietlenie)
-//				view.highlight(e.getSource().computeALlPossibleMoves...);
-//			if(e.getSource() == prevSource)
-//				return;
-//			if(!podswietlenie)
-//				model.executeMove();
-//			
-//			podswietlenie = !podswietlenie;
-//		}
-//	}
-	
 }
