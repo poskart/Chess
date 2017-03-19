@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -50,7 +51,9 @@ public class BoardTable
 	protected List<Move> highlightedMoves;
 	/** Variable to store board model to which this @BoardTable class refers to*/
 	private Board gameBoard;
-		/**
+	/** Is possible moves highlight enabled flag */
+	protected boolean isHighlightEnabled;
+	/**
 	 * Initializes new BoardTable (view) object
 	 * @param board is the board model
 	 */
@@ -65,19 +68,10 @@ public class BoardTable
 		gameFrame.setJMenuBar(gameMenuBar);
 		
 		gameBoardPanel = new BoardPanel();
-		//gameFrame.setContentPane(gameBoardPanel);
 		gameFrame.add(gameBoardPanel, BorderLayout.CENTER);
-		
-//		JLabel winLabel = new JLabel("Check mate, white wins!");
-//		winLabel.setFont(new Font("Arial", 1, 32));
-//		JPanel panel = new JPanel();
-//		panel.setPreferredSize(new Dimension(GUISettings.GAME_OVER_PANEL_LENGTH, 
-//				GUISettings.GAME_OVER_PANEL_HIGHT));
-//		panel.setBackground(new Color(0, 254, 0, 125));
-//		panel.add(winLabel);
-
 		gameFrame.setVisible(true);
 		highlightedMoves = null;
+		isHighlightEnabled = false;
 	}
 	/**
 	 * This method creates @JMenu main menu for the game.
@@ -89,12 +83,22 @@ public class BoardTable
 		final JMenuItem exit = new JMenuItem("Exit");
 		exit.addActionListener(new ActionListener()
 			{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				System.exit(0);
-			}
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					System.exit(0);
+				}
 			});
+		final JCheckBoxMenuItem highlight = new JCheckBoxMenuItem("Highlight possible moves");
+		highlight.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					setHighlight(highlight.getState());
+				}
+			});
+		mainMenu.add(highlight);
 		mainMenu.add(exit);
 		return mainMenu;
 	}
@@ -179,6 +183,15 @@ public class BoardTable
 	public void redrawFieldPanel(final int position)
 	{
 		gameBoardPanel.fieldArray.get(position).redrawField(gameBoard);
+	}
+	/**
+	 *	Set value of isHighlightEnabled variable to turn on or turn off
+	 *	possible moves highlight
+	 *@param 
+	 */
+	public void setHighlight(final boolean highlightEnabled)
+	{
+		isHighlightEnabled = highlightEnabled;
 	}
 	
 	/**

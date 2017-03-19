@@ -17,9 +17,9 @@ public final class GUISettings
 	public static final int FIELD_SIZE = 10;
 	
 	/** Color of the light pieces of the board */
-	public static final Color WHITE_COLOR = new Color(255, 250, 200);
+	public static final Color WHITE_COLOR = new Color(230, 230, 190);
 	/** Color of the dark pieces of the board */
-	public static final Color DARK_COLOR = new Color(135, 65, 20);
+	public static final Color DARK_COLOR = new Color(115, 65, 20);
 	
 	/** Relative path to main directory with images of pieces */
 	public static final String PIECE_IMAGES_PATH = "img/pieces/";

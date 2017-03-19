@@ -35,7 +35,6 @@ public final class View extends BoardTable implements Observer
 		super.addController(controller);
 	}
 	
-	
 	public void setInitialGameBoard()
 	{
 		super.setInitialGameBoard();
@@ -62,5 +61,10 @@ public final class View extends BoardTable implements Observer
 	public void removeHighlight()
 	{
 		super.removeHighlight();
+	}
+	
+	public final boolean isHighlightEnabled()
+	{
+		return isHighlightEnabled;
 	}
 }

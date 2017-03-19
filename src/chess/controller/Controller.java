@@ -39,7 +39,8 @@ public final class Controller implements MouseListener
 			final int panelId = panel.getPanelId();
 			if(gameView.isHighlited())
 				gameView.removeHighlight();
-			if(gameModel.getGameBoard().isBoardFieldOccupied(panelId))
+			if(gameModel.getGameBoard().isBoardFieldOccupied(panelId) && 
+					gameView.isHighlightEnabled())
 			{
 				Piece piece = gameModel.getGameBoard().getPieceOnField(panelId);
 				if(gameModel.getActivePlayer().getAlliance() == piece.getAlliance())
@@ -47,7 +48,6 @@ public final class Controller implements MouseListener
 			}
 			gameModel.handleTwoTilesPressed(panelId, lastClickedPanelId);
 			
-			System.out.println(panel.getPanelId());
 			previousSource = (FieldPanel)panel;
 			lastClickedPanelId = panel.getPanelId();
 		}
