@@ -7,6 +7,7 @@ import chess.model.board.Board;
 import chess.model.game.Move;
 import chess.model.game.Move.AttackMove;
 import chess.model.game.Move.CommonMove;
+import chess.model.game.Move.PawnPromotionMove;
 
 public class Pawn extends Piece 
 {
@@ -29,7 +30,12 @@ public class Pawn extends Piece
 		if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
 		{
 			if(!board.isBoardFieldOccupied(potentialAbsolutePosition))
-				possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
+			{
+				if(!board.isFieldValid(potentialAbsolutePosition + 8 * alliance.getDirection()))
+					possibleMovesList.add(new PawnPromotionMove(board, this, position, potentialAbsolutePosition));
+				else
+					possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
+			}
 		}
 		/*
 		 * Two fields forward

@@ -2,6 +2,7 @@ package chess.model.game;
 
 import chess.model.board.Board;
 import chess.model.pieces.Piece;
+import chess.model.pieces.Queen;
 
 public abstract class Move 
 {
@@ -128,6 +129,32 @@ public abstract class Move
 		public void undo()
 		{
 			board.removePieceFromField(movedPiece, targetPosition);
+			board.putPieceOnField(movedPiece, sourcePosition);
+		}
+	}
+	
+	public static class PawnPromotionMove extends Move
+	{		
+		public PawnPromotionMove(final Board board, 
+				final Piece movedPiece,
+				final int sourcePosition, 
+				final int targetPosition)
+		{
+			super(board, movedPiece, sourcePosition, targetPosition);
+		}
+		
+		@Override
+		public void execute()
+		{
+			super.execute();
+			Piece tmpPiece = board.removePieceFromField(movedPiece, sourcePosition);
+			tmpPiece = new Queen(targetPosition, movedPiece.getAlliance());
+			board.putPieceOnField(tmpPiece, targetPosition);
+		}
+		@Override
+		public void undo()
+		{
+			board.removePieceFromField(board.getPieceOnField(targetPosition), targetPosition);
 			board.putPieceOnField(movedPiece, sourcePosition);
 		}
 	}
