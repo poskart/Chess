@@ -72,12 +72,12 @@ public class King extends Piece
 		/*
 		 * Check upper and bottom border
 		 */
-		if(isPositionOutOfTheBoardLinear(targetPosition))
+		if(Board.isPositionOutOfTheBoardLinear(targetPosition))
 			return false;
 		/*
 		 * Check right and left border
 		 */
-		if(isNewPositionCrossingTheBoard(currentPosition, targetPosition))
+		if(Board.isNewPositionCrossingTheBoard(currentPosition, targetPosition))
 			return false;
 		/*
 		 * Check if is not occupied by the same alliance

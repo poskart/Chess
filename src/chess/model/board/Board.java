@@ -9,17 +9,36 @@ import chess.model.game.Move;
 import chess.model.aux.Alliance;
 import chess.model.pieces.*;
 
+/**
+ * This is class which represents board properties and actions.
+ * This class object consists of fields array, collections of the
+ * pieces, reference to kings and active alliance. It implements 
+ * method which perform pieces movements and calculates board state.
+ * 
+ * @author Piotr Poskart
+ *
+ */
 public class Board 
 {
+	/** List of fields on the game board */
 	private List<Field> fieldArray;
+	/** Collection of white game pieces */
 	private Collection<Piece> whitePieces;
+	/** Collection of black game pieces */
 	private Collection<Piece> blackPieces;
+	/** Reference to white king on the board */
 	private King wKing;
+	/** Reference to black king on the board */
 	private King bKing;
+	/** Active alliance variable */
 	private Alliance activeAlliance;
-	
+	/** Number of board fields */
 	public final static int BOARD_FIELDS_NUMBER = 64;
 	
+	/**
+	 * Board constructor. Initializes all board fields with proper pieces,
+	 * recompute all white and black pieces and initializes active alliance.
+	 */
 	public Board()
 	{
 		initialize();
@@ -28,6 +47,11 @@ public class Board
 		activeAlliance = Alliance.WHITE;
 	}
 	
+	/**
+	 * This method initializes game board with all the pieces given in 
+	 * initial board state and assign white and black kings to their 
+	 * references.
+	 */
 	public void initialize()
 	{
 		fieldArray = new ArrayList<Field>();
@@ -70,7 +94,13 @@ public class Board
 		fieldArray.add(62, Field.createField(62, new Knight(62, Alliance.BLACK)));
 		fieldArray.add(63, Field.createField(63, new Rook(63, Alliance.BLACK)));
 	}
-	
+	/**
+	 * This method finds all pieces of the given color on the current board.
+	 * 
+	 * @param fieldArray is an array of board fields.
+	 * @param alliance is alliance of the pieces to be found.
+	 * @return collection of pieces with given alliance
+	 */
 	private Collection<Piece> findAllPiecesByColor(final Collection<Field> fieldArray, final Alliance alliance)
 	{
 		final List<Piece> singleColorPieces = new ArrayList<>();
@@ -81,7 +111,13 @@ public class Board
 		}
 		return singleColorPieces;
 	}
-	
+	/**
+	 * This method calculates all legal moves for given pieces.
+	 * 
+	 * @param piecesToExamine is collection of the pieces which legal 
+	 * moves have to be found
+	 * @return collection of the legal moves for given pieces collection.
+	 */
 	private Collection<Move> calculateAllLegalMoves(final Collection<Piece> piecesToExamine)
 	{
 		List<Move> legalMoves = new ArrayList<>();
@@ -92,7 +128,12 @@ public class Board
 		}
 		return legalMoves;
 	}
-	
+	/**
+	 * This method returns all legal moves of the given alliance.
+	 * 
+	 * @param alliance is an alliance of which moves have to be calculated
+	 * @return collection of legal moves for the given alliance
+	 */
 	public final Collection<Move> getAllLegalMovesOfAlliance(final Alliance alliance)
 	{
 		if(alliance == Alliance.BLACK)
@@ -100,7 +141,13 @@ public class Board
 		else
 			return calculateAllLegalMoves(whitePieces);
 	}
-	
+	/**
+	 * This method calculates all legal attack moves for given pieces.
+	 * 
+	 * @param piecesToExamine is collection of the pieces which legal 
+	 * attack moves have to be found
+	 * @return collection of the legal attack moves for given pieces collection.
+	 */
 	private Collection<Move> calculateAllLegalAttackMoves(final Collection<Piece> piecesToExamine)
 	{
 		List<Move> legalMoves = new ArrayList<>();
@@ -111,7 +158,12 @@ public class Board
 		}
 		return legalMoves;
 	}
-	
+	/**
+	 * This method returns all legal attack moves of the given alliance.
+	 * 
+	 * @param alliance is an alliance of which moves have to be calculated
+	 * @return collection of legal attack moves for the given alliance
+	 */
 	public final Collection<Move> getAllLegalAttackMovesOfAlliance(final Alliance alliance)
 	{
 		if(alliance == Alliance.BLACK)
@@ -162,7 +214,12 @@ public class Board
 			return false;
 		return true;
 	}
-	
+	/**
+	 * This method finds (updates) all pieces of the given alliance
+	 *  on the current board.
+	 * 
+	 * @param alliance is an alliance of the pieces to be recomputed 
+	 */
 	public void recomputePieces(Alliance alliance)
 	{
 		if(alliance == Alliance.BLACK)
@@ -170,58 +227,127 @@ public class Board
 		else
 			this.whitePieces = findAllPiecesByColor(fieldArray, alliance);
 	}
-	
+	/**
+	 * This method put given pieces on the pointed game board field.
+	 * 
+	 * @param piece is piece which has to be put on given field
+	 * @param targetPosition is target position of the field which piece
+	 * has to be moved on
+	 */
 	public void putPieceOnField(final Piece piece, final int targetPosition)
 	{
 		fieldArray.remove(targetPosition);
 		fieldArray.add(targetPosition, Field.createField(targetPosition, piece));
 		piece.updatePosition(targetPosition);
 	}
-	
+	/**
+	 * This method removes given piece from pointed field.
+	 * 
+	 * @param piece is piece to be removed from board field.
+	 * @param position is position of the piece which has to be removed.
+	 * @return piece which has been just removed from given field.
+	 */
 	public final Piece removePieceFromField(final Piece piece, final int position)
 	{
 		fieldArray.remove(position);
 		fieldArray.add(position, Field.createField(position, null));
 		return piece;
 	}
-	
+	/**
+	 * This method checks whether given board field is occupied or not.
+	 * @param position is position to be checked if occupied.
+	 * @return true if position occupied, false otherwise.
+	 */
 	public final boolean isBoardFieldOccupied(int position)
 	{
 		return fieldArray.get(position).isFieldOccupied();
 	}
-	
+	/**
+	 * This method checks whether given field position is valid
+	 * for the chess game.
+	 * 
+	 * @param absoluteLinearPosition position to be checked
+	 * @return true if position is valid for the chess game, false otherwise.
+	 */
 	public final boolean isFieldValid(int absoluteLinearPosition)
 	{
-		return (absoluteLinearPosition >= 0 && absoluteLinearPosition <=63)? true: false;
+		return (absoluteLinearPosition >= 0 && absoluteLinearPosition <= BOARD_FIELDS_NUMBER-1)? true: false;
 	}
-	
+	/**
+	 * This method checks whether given field position is out of 
+	 * the chess board.
+	 *  
+	 * @param targetPosition position to be checked.
+	 * @return true if position out of the board, false otherwise.
+	 */
+	public static final boolean isPositionOutOfTheBoardLinear(final int targetPosition)
+	{
+		return targetPosition > BOARD_FIELDS_NUMBER-1 || targetPosition < 0;
+	}
+	/**
+	 * This method checks if the next two absolute positions crosses the board
+	 * border.
+	 * 
+	 * @param currentPosition first position (source position)
+	 * @param targetPosition second position (target position)
+	 * @return true if given positions are next to the opposite board borders,
+	 * false otherwise
+	 */
+	public static final boolean isNewPositionCrossingTheBoard(
+			final int currentPosition, final int targetPosition)
+	{
+		return (currentPosition % 8 == 0 && targetPosition % 8 == 7) || 
+				(currentPosition % 8 == 7 && targetPosition % 8 == 0);
+	}
+	/**
+	 * This method gets pieces from given field
+	 * @param absolutePosition position of the piece to be returned
+	 * @return reference to the piece on the given field
+	 */
 	public final Piece getPieceOnField(int absolutePosition)
 	{
 		if(isFieldValid(absolutePosition))
 			return fieldArray.get(absolutePosition).getPiece();
 		return null;
 	}
-	
+	/**
+	 * This method returns collection of the black pieces on the board.
+	 * @return collection of the currently existing black pieces.
+	 */
 	public final Collection<Piece> getBlackPieces()
 	{
 		return blackPieces;
 	}
-	
+	/**
+	 * This method returns collection of the white pieces on the board.
+	 * @return collection of the currently existing white pieces.
+	 */
 	public final Collection<Piece> getWhitePieces()
 	{
 		return whitePieces;
 	}
-	
+	/**
+	 * This method returns active alliance.
+	 * @return alliance which is currently active.
+	 */
 	public final Alliance getActiveAlliance()
 	{
 		return activeAlliance;
 	}
-	
+	/**
+	 * This method assign new alliance to the active alliance attribute
+	 * 
+	 * @param alliance is new active alliance
+	 */
 	public void updateActiveAlliance(final Alliance alliance)
 	{
 		this.activeAlliance = alliance;
 	}
-	
+	/**
+	 * This method checks if king is in check
+	 * @param alliance is an alliance of the king to be tested.
+	 * @return reference to the king which is in check, if so; false otherwise.
+	 */
 	public final Piece isKingInCheck(final Alliance alliance)
 	{
 		if(alliance == Alliance.WHITE)
@@ -229,7 +355,14 @@ public class Board
 		else
 			return bKing.isInCheck(this);		
 	}
-	
+	/**
+	 * This method check whether given field is under attack or not.
+	 * 
+	 * @param absolutePosition is position to be checked.
+	 * @param defenderAlliance is an alliance of the piece which is testing this 
+	 * position
+	 * @return true if position is under attack of enemy alliance, false otherwise.
+	 */
 	public final boolean isFieldUnderAttack(final int absolutePosition, Alliance defenderAlliance)
 	{
 		List<Move> possibleMovesList = new ArrayList<>();
@@ -251,7 +384,11 @@ public class Board
 		}
 		return false;
 	}
-	
+	/**
+	 * This method prints board state on the standard output.
+	 * It uses basic pieces signs (letters) corresponding to 
+	 * given piece type.
+	 */
 	@Override
 	public String toString()
 	{

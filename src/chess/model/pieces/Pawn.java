@@ -27,7 +27,7 @@ public class Pawn extends Piece
 		 * One field forward
 		 */
 		potentialAbsolutePosition = position + 8 * alliance.getDirection();
-		if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
+		if(!Board.isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
 		{
 			if(!board.isBoardFieldOccupied(potentialAbsolutePosition))
 			{
@@ -44,7 +44,7 @@ public class Pawn extends Piece
 		{
 			int betweenPosition = potentialAbsolutePosition;
 			potentialAbsolutePosition = position + 16 * alliance.getDirection();
-			if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
+			if(!Board.isPositionOutOfTheBoardLinear(potentialAbsolutePosition))
 			{
 				if(!board.isBoardFieldOccupied(potentialAbsolutePosition) && !board.isBoardFieldOccupied(betweenPosition))
 					possibleMovesList.add(new CommonMove(board, this, position, potentialAbsolutePosition));
@@ -74,13 +74,13 @@ public class Pawn extends Piece
 		 * Capturing fields (diagonal)
 		 */
 		potentialAbsolutePosition = position + alliance.getDirection()*7;
-		if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition) &&
-				!isNewPositionCrossingTheBoard(position, potentialAbsolutePosition))
+		if(!Board.isPositionOutOfTheBoardLinear(potentialAbsolutePosition) &&
+				!Board.isNewPositionCrossingTheBoard(position, potentialAbsolutePosition))
 			possibleMovesList.add(new AttackMove(board, this, board.getPieceOnField(potentialAbsolutePosition),
 					position, potentialAbsolutePosition));
 		potentialAbsolutePosition = position + alliance.getDirection()*9;
-		if(!isPositionOutOfTheBoardLinear(potentialAbsolutePosition) &&
-				!isNewPositionCrossingTheBoard(position, potentialAbsolutePosition))
+		if(!Board.isPositionOutOfTheBoardLinear(potentialAbsolutePosition) &&
+				!Board.isNewPositionCrossingTheBoard(position, potentialAbsolutePosition))
 			possibleMovesList.add(new AttackMove(board, this, board.getPieceOnField(potentialAbsolutePosition),
 					position, potentialAbsolutePosition));
 		
@@ -90,8 +90,8 @@ public class Pawn extends Piece
 	private final boolean isFieldValidToCapture(
 			Board board, final int currentPosition, final int targetPosition)
 	{
-		if(isPositionOutOfTheBoardLinear(targetPosition) ||
-				isNewPositionCrossingTheBoard(currentPosition, targetPosition))
+		if(Board.isPositionOutOfTheBoardLinear(targetPosition) ||
+				Board.isNewPositionCrossingTheBoard(currentPosition, targetPosition))
 			return false;
 
 		if(board.isBoardFieldOccupied(targetPosition) && 

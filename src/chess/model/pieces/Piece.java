@@ -5,6 +5,16 @@ import chess.model.aux.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
 
+/**
+ * This is abstract class which is the base for all
+ * pieces in the game. It implements such piece features
+ * as position, alliance, piece type and provides get and 
+ * set methods for this attributes as well as some additional
+ * auxiliary functions.
+ * 
+ * @author piotr
+ *
+ */
 public abstract class Piece 
 {
 	
@@ -37,18 +47,6 @@ public abstract class Piece
 	public final Alliance getAlliance()
 	{
 		return alliance;
-	}
-	
-	public static final boolean isPositionOutOfTheBoardLinear(final int targetPosition)
-	{
-		return targetPosition > 63 || targetPosition < 0;
-	}
-	
-	public static final boolean isNewPositionCrossingTheBoard(
-			final int currentPosition, final int targetPosition)
-	{
-		return (currentPosition % 8 == 0 && targetPosition % 8 == 7) || 
-				(currentPosition % 8 == 7 && targetPosition % 8 == 0);
 	}
 	
 	public final boolean wasAlreadyMoved()

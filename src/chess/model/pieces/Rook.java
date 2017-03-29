@@ -31,7 +31,7 @@ public class Rook extends Piece
 		 */
 		previouslyCheckedPosition = examinedPiece.getPosition();
 		potentialAbsolutePosition = previouslyCheckedPosition + 1;
-		while(!isNewPositionCrossingTheBoard(previouslyCheckedPosition, potentialAbsolutePosition)
+		while(!Board.isNewPositionCrossingTheBoard(previouslyCheckedPosition, potentialAbsolutePosition)
 				&& board.isFieldValid(potentialAbsolutePosition))
 		{
 			if(board.isBoardFieldOccupied(potentialAbsolutePosition))
@@ -50,7 +50,7 @@ public class Rook extends Piece
 		 */
 		previouslyCheckedPosition = examinedPiece.getPosition();
 		potentialAbsolutePosition = previouslyCheckedPosition - 1;
-		while(!isNewPositionCrossingTheBoard(previouslyCheckedPosition, potentialAbsolutePosition)
+		while(!Board.isNewPositionCrossingTheBoard(previouslyCheckedPosition, potentialAbsolutePosition)
 				&& board.isFieldValid(potentialAbsolutePosition))
 		{
 			if(board.isBoardFieldOccupied(potentialAbsolutePosition))
