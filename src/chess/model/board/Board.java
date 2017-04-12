@@ -41,6 +41,14 @@ public class Board
 	 */
 	public Board()
 	{
+		resetBoard();
+	}
+	/**
+	 * This method resets all model parameters to its default values, 
+	 * as at the beginning of the game.
+	 */
+	public void resetBoard()
+	{
 		initialize();
 		whitePieces = findAllPiecesByColor(fieldArray, Alliance.WHITE);
 		blackPieces = findAllPiecesByColor(fieldArray, Alliance.BLACK);

@@ -93,6 +93,14 @@ public abstract class Move
 	 */
 	abstract public void undo();
 	/**
+	 * Checks is this an empty move.
+	 * @return true if empty move, false otherwise.
+	 */
+	public boolean isEmptyMove()
+	{
+		return false;
+	}
+	/**
 	 * Checks is this an attack move.
 	 * @return true if attack move, false otherwise.
 	 */
@@ -127,6 +135,8 @@ public abstract class Move
 	{
 		/** Reference to piece which is attacked */
 		private Piece attackedPiece;
+		/** Specific signature of the attack move */
+		public static final String moveSignature = "AM";
 		/**
 		 * AttackMove constructor. Initializes information about 
 		 * pieces and positions to be changed.
@@ -195,6 +205,8 @@ public abstract class Move
 	 */
 	public static class CommonMove extends Move
 	{		
+		/** Specific signature of the common move */
+		public static final String moveSignature = "CM";
 		/**
 		 * CommonMove constructor. Initializes information about 
 		 * pieces and positions to be changed.
@@ -232,8 +244,37 @@ public abstract class Move
 		}
 	}
 	
+	public static class EmptyMove extends Move
+	{		
+		/** Specific signature of the empty move */
+		public static final String moveSignature = "EM";
+		/**
+		 * EmptyMove constructor. 
+		 */
+		public EmptyMove()
+		{
+			super(null, null, -1, -1);
+		}
+		/**
+		 * Returns true, because it is EmptyMove move.
+		 * @return true.
+		 */
+		@Override
+		public final boolean isEmptyMove()
+		{
+			return true;
+		}
+		/**
+		 * Undoes move - empty method for empty move.
+		 */
+		@Override
+		public void undo() {}
+	}
+	
 	public static class PawnPromotionMove extends Move
 	{		
+		/** Specific signature of the pawn promotion move */
+		public static final String moveSignature = "PP";
 		/**
 		 * PawnPromotionMove constructor. Initializes information about 
 		 * pieces and positions to be changed.
@@ -278,6 +319,8 @@ public abstract class Move
 	{	
 		/** Position of the rook which takes part in castling */
 		final int rookPosition;
+		/** Specific signature of the castling move */
+		public static final String moveSignature = "CS";
 		/**
 		 * CastlingMove constructor. Initializes information about 
 		 * pieces and positions to be changed.
@@ -296,6 +339,14 @@ public abstract class Move
 		{
 			super(board, movedPiece, sourcePosition, targetPosition);
 			this.rookPosition = rookPosition;
+		}
+		/**
+		 * This method returns rook position.
+		 * @return rook position.
+		 */
+		public final int getRookPosition()
+		{
+			return rookPosition;
 		}
 		/**
 		 * Executes move. Moves pieces on the board to the target position

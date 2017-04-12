@@ -4,6 +4,8 @@ import java.awt.event.MouseListener;
 import java.util.Observable;
 import java.util.Observer;
 
+import javax.swing.JFrame;
+
 import chess.model.Model;
 import chess.model.game.Move;
 
@@ -110,5 +112,13 @@ public final class View extends BoardTable implements Observer
 	public final boolean isHighlightEnabled()
 	{
 		return isHighlightEnabled;
+	}
+	/**
+	 * This method returns main view frame object (JFrame)
+	 * @return main frame object (JFrame)
+	 */
+	public final JFrame getMainFrame()
+	{
+		return super.getMainFrame();
 	}
 }

@@ -24,18 +24,11 @@ public class Chess
 		View view = new View(model);
 		model.addObserver(view);
 		Controller controller = new Controller(model, view);
+		controller.clientHandle();
 		
 		view.addController(controller);
-		try
-		{
-			Thread.sleep(1);
-		}
-		catch(InterruptedException ex)
-		{
-			Thread.currentThread().interrupt();
-		}
-		
 		view.setInitialGameBoard();
-		System.out.println(model.getGameBoard());
+
+		//System.out.println(model.getGameBoard());
 	}
 }

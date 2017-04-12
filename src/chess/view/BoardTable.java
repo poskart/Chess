@@ -6,6 +6,8 @@ import chess.model.game.Move;
 import chess.model.pieces.Piece;
 
 import java.awt.BorderLayout;
+import java.awt.Checkbox;
+import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -25,6 +27,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 /**
  * This class is main View class for the chess game.
@@ -192,6 +196,14 @@ public class BoardTable
 	public void setHighlight(final boolean highlightEnabled)
 	{
 		isHighlightEnabled = highlightEnabled;
+	}
+	/**
+	 * This method returns main JFrame object
+	 * @return main frame object (JFrame)
+	 */
+	public JFrame getMainFrame()
+	{
+		return gameFrame;
 	}
 	
 	/**

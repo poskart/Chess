@@ -61,7 +61,21 @@ public final class Model extends Observable
 		checkmate = true;
 		winningAlliance = null;
 	}
-	
+	/**
+	 * This method resets model to its default state and sets all
+	 * the parameters to its initial values as at the beginning of the game.
+	 */
+	public void resetModel()
+	{
+		gameBoard.resetBoard();
+		activePlayer = wPlayer;
+		gameBoard.updateActiveAlliance(activePlayer.getAlliance());
+		kingInCheck = null;
+		gameOver = false;
+		stalemate = false;
+		checkmate = true;
+		winningAlliance = null;
+	}
 	/**
 	 * Executes move given in method's parameter, updates board pieces
 	 * count, checks game end conditions, change active player and 
@@ -137,8 +151,9 @@ public final class Model extends Observable
 	 * and executed move if there was correct pieces on the board pressed.
 	 * @param currentPosition - the last clicked board field position
 	 * @param previousPosition - previous clicked board field position
+	 * @return Move object if executed, null otherwise.
 	 */
-	public void handleTwoTilesPressed(final int currentPosition, final int previousPosition)
+	public final Move handleTwoTilesPressed(final int currentPosition, final int previousPosition)
 	{
 		Piece pieceToMove = gameBoard.getPieceOnField(previousPosition);
 		if(pieceToMove != null)
@@ -153,11 +168,12 @@ public final class Model extends Observable
 							&& possibleMove.getSourcePosition() == previousPosition)
 					{
 						executeMove(possibleMove);
-						break;
+						return possibleMove;
 					}
 				}
 			}
 		}
+		return null;
 	}
 	/**
 	 * Return reference to game board object
