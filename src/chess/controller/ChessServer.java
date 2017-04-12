@@ -3,13 +3,11 @@ package chess.controller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import chess.model.game.Move;
+import chess.model.aux.Alliance;
 
 public class ChessServer 
 {
@@ -21,11 +19,10 @@ public class ChessServer
         System.out.println("Chess Server is Running");
         try {
             while (true) {
-                //Player currentPlayer = null;
-                System.out.println("Server before 1 player");
                 Player player1 = new Player(listener.accept(), 'W');
-                System.out.println("Server after 1 player");
+                System.out.println("Server accepted 1 player");
                 Player player2 = new Player(listener.accept(), 'B');
+                System.out.println("Server accepted 2 player");
                 player1.setOpponent(player2);
                 player2.setOpponent(player1);
                 player1.start();
@@ -45,6 +42,7 @@ class Player extends Thread
     String receivedMessage;
     BufferedReader in;
     PrintWriter out;
+    Alliance activeAlliance;
 
     /**
      * Constructs a handler thread for a given socket and mark
@@ -57,9 +55,6 @@ class Player extends Thread
         this.mark = mark;
         try 
         {
-//        	input = new BufferedReader(
-//                    new InputStreamReader(socket.getInputStream()));
-//            output = new PrintWriter(socket.getOutputStream(), true);
         	in = new BufferedReader(new InputStreamReader(
 	                socket.getInputStream()));
         	out = new PrintWriter(socket.getOutputStream(), true);
@@ -89,7 +84,8 @@ class Player extends Thread
 		 try 
 		 {
 			 receivedMessage = in.readLine();
-             System.out.println("Client - new object received");
+             if(receivedMessage != null)
+            	 System.out.println(receivedMessage);
          } 
 		 catch(IOException e1)
 		 {
@@ -122,24 +118,31 @@ class Player extends Thread
             while (true) 
             {
             	receiveMessage();
-            	if (receivedMessage.startsWith("MOVE")) 
-                {
-            		sendMessage(new String("New move registered in server..."));
-            		opponent.sendMessage(receivedMessage);
-                } 
-            	else
+            	if(receivedMessage != null)
             	{
-            		System.out.println(receivedMessage);
-	            	if (receivedMessage.startsWith("QUIT")) 
+	            	if (receivedMessage.startsWith("MOVE")) 
 	                {
-	                    return;
-	                }
+	            		sendMessage(new String("New move registered in server..."));
+	            		opponent.sendMessage(receivedMessage);
+	                } 
+	            	else
+	            	{
+	            		System.out.println(receivedMessage);
+		            	if (receivedMessage.startsWith("QUIT")) 
+		                {
+		                    return;
+		                }
+	            	}
             	}
             }
         } 
         catch (Exception e) 
         {
         	e.printStackTrace(System.out);
+        }
+        finally
+        {
+            try {socket.close();} catch (IOException e) {}
         }
     }
 }

@@ -24,11 +24,10 @@ public class Chess
 		View view = new View(model);
 		model.addObserver(view);
 		Controller controller = new Controller(model, view);
+		view.addController(controller);
+		
 		controller.clientHandle();
 		
-		view.addController(controller);
 		view.setInitialGameBoard();
-
-		//System.out.println(model.getGameBoard());
 	}
 }

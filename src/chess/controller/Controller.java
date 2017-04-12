@@ -1,7 +1,5 @@
 package chess.controller;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,8 +16,6 @@ import chess.model.game.Move.CastlingMove;
 import chess.model.game.Move.CommonMove;
 import chess.model.game.Move.EmptyMove;
 import chess.model.game.Move.PawnPromotionMove;
-import chess.model.pieces.Piece;
-import chess.view.BoardTable.FieldPanel;
 import chess.view.View;
 
 /**
@@ -30,16 +26,12 @@ import chess.view.View;
  * @author Piotr Poskart
  *
  */
-public final class Controller implements MouseListener
+public final class Controller
 {
 	/** Main game model object */
 	private final Model gameModel;
 	/** Main game view object  */
 	private final View gameView;
-	/** Previous clicked panel object on the board */
-	private Object previousPanelClicked;
-	/** Id of the last clicked board panel */
-	private int lastClickedPanelId;
 	
     private static int PORT = 8901;
     private Socket socket;
@@ -58,10 +50,8 @@ public final class Controller implements MouseListener
 	{
 		this.gameModel = model;
 		this.gameView = view;
-		this.previousPanelClicked = null;
-		this.lastClickedPanelId = -1;
-		this.gameAlliance = Alliance.WHITE;
 		this.readMessage = null;
+		this.gameAlliance = Alliance.WHITE;
 	}
 	/**
 	 * Initializes view with the first game board setting.
@@ -71,59 +61,14 @@ public final class Controller implements MouseListener
 		gameView.setInitialGameBoard();
 	}
 	/**
-	 * Performs mouse event handling on the board. This method
-	 * sends information about pressed board panels to the game
-	 * model object. It also decides if highlight should be shown
-	 * based on pressed panel.
-	 * 
-	 * @param mouseEvent reference to performed mouse event 
+	 * Get alliance of the player
+	 * @return alliance of the player which plays this chess game
 	 */
-	@Override
-	public void mouseClicked(MouseEvent mouseEvent)
+	public final Alliance getAlliance()
 	{
-		System.out.println("Controller mouse listener active");
-		if(!gameModel.isGameOver())
-		{
-			if(gameModel.getActivePlayer().getAlliance() == gameAlliance)
-			{
-				FieldPanel panel = (FieldPanel)mouseEvent.getSource();
-				if(panel == (FieldPanel)previousPanelClicked)
-					return;
-				final int panelId = panel.getPanelId();
-				if(gameView.isHighlited())
-					gameView.removeHighlight();
-				if(gameModel.getGameBoard().isBoardFieldOccupied(panelId) && 
-						gameView.isHighlightEnabled())
-				{
-					Piece piece = gameModel.getGameBoard().getPieceOnField(panelId);
-					if(gameModel.getActivePlayer().getAlliance() == piece.getAlliance())
-						gameView.highlightPossibleMoves(panelId);
-				}
-				Move mv = gameModel.handleTwoTilesPressed(panelId, lastClickedPanelId);
-				if(mv != null)
-				{
-					sendMove(mv);
-				}
-					
-				previousPanelClicked = (FieldPanel)panel;
-				lastClickedPanelId = panel.getPanelId();
-			}
-		}
+		return gameAlliance;
 	}
 	
-	@Override
-	public void mouseEntered(MouseEvent e){
-	}
-	@Override
-	public void mouseExited(MouseEvent e){
-	}
-	@Override
-	public void mousePressed(MouseEvent e){
-	}
-	@Override
-	public void mouseReleased(MouseEvent e){
-	}
-
 	public void connectToServer()
 	{
 		// Get the server address from a dialog box.
@@ -148,7 +93,7 @@ public final class Controller implements MouseListener
         catch(IOException e)
         {
         	System.out.println("Exception! - cannot connect to the server");
-        	e.printStackTrace(System.out);
+        	e.printStackTrace(System.out);	
         	try {socket.close();} catch (IOException e1) {}
         }
 	}
@@ -171,7 +116,9 @@ public final class Controller implements MouseListener
 		 try 
 		 {
              readMessage = in.readLine();
-             System.out.println("Client - new object received");
+             System.out.println("Client - new object received: ");
+             if(readMessage != null)
+            	 System.out.println("\t" + readMessage);
          } 
 		 catch(Exception e1)
 		 {
@@ -185,30 +132,26 @@ public final class Controller implements MouseListener
 		Move moveToExecute = null;
 		try
 		{
-	    	receiveMessage();
-	    	if(readMessage.startsWith("ALLIANCE"))
-	    	{
-	    		  char allianceMark = readMessage.charAt(8);
-	              if(allianceMark == 'B')
-	              	gameAlliance = Alliance.BLACK;
-	    	}
 	        while (true) 
 	        {
 	        	receiveMessage();
-	            if (readMessage.startsWith("MOVE")) 
+	        	if(readMessage.startsWith("ALLIANCE"))
+		    	{
+	        		if(readMessage.charAt(9)== 'B')
+	        		{
+		              	gameAlliance = Alliance.BLACK;
+		              	System.out.println("Zmieniono kolor na B");
+	        		}
+		    	}
+	        	else if (readMessage.startsWith("MOVE")) 
 	            {
 	            	moveToExecute = transformToMove(readMessage);
 	            	gameModel.executeMove(moveToExecute);
+	            	if(gameModel.isGameOver())
+	            		break;
 	            } 
-	            else if (readMessage.startsWith("QUIT")) 
-	            {
-	                break;
-	            }
-	            else if (true) 
-	            {
-	                System.out.println("Otrzymano wiadomosc: " + readMessage);
-	            }  
 	        }
+	        sendMessage("QUIT");
 		}
         finally {
         	try {socket.close();} catch (IOException e1) {}
@@ -226,26 +169,26 @@ public final class Controller implements MouseListener
 		}
 		else if(move instanceof AttackMove)
 		{
-			moveInMessage += CommonMove.moveSignature + " "
+			moveInMessage += AttackMove.moveSignature + " "
 					+ move.getSourcePosition() + " "
 					+ move.getTargetPosition();
 		}
 		else if(move instanceof PawnPromotionMove)
 		{
-			moveInMessage += CommonMove.moveSignature + " "
+			moveInMessage += PawnPromotionMove.moveSignature + " "
 					+ move.getSourcePosition() + " "
 					+ move.getTargetPosition();
 		}
 		else if(move instanceof CastlingMove)
 		{
-			moveInMessage += CommonMove.moveSignature + " "
+			moveInMessage += CastlingMove.moveSignature + " "
 					+ move.getSourcePosition() + " "
 					+ move.getTargetPosition() + " "
 					+ ((CastlingMove)move).getRookPosition();
 		}
 		else if(move instanceof EmptyMove)
 		{
-			moveInMessage += CommonMove.moveSignature;
+			moveInMessage += EmptyMove.moveSignature;
 		}
 		sendMessage(moveInMessage);
 	}
@@ -253,7 +196,7 @@ public final class Controller implements MouseListener
 	public final Move transformToMove(String moveDescription)
 	{
 		String[] splited = moveDescription.split("\\s+");
-		if(splited[1] == "CM")
+		if(splited[1].equals("CM"))
 		{
 			return new CommonMove(gameModel.getGameBoard(), 
 					gameModel.getGameBoard().getPieceOnField(
@@ -262,7 +205,7 @@ public final class Controller implements MouseListener
 					Integer.parseInt(splited[3])
 					);
 		}
-		else if(splited[1] == "AM")
+		else if(splited[1].equals("AM"))
 		{
 			return new AttackMove(gameModel.getGameBoard(), 
 					gameModel.getGameBoard().getPieceOnField(
@@ -273,7 +216,7 @@ public final class Controller implements MouseListener
 					Integer.parseInt(splited[3])
 					);
 		}
-		else if(splited[1] == "PP")
+		else if(splited[1].equals("PP"))
 		{
 			return new PawnPromotionMove(gameModel.getGameBoard(), 
 					gameModel.getGameBoard().getPieceOnField(
@@ -282,7 +225,7 @@ public final class Controller implements MouseListener
 					Integer.parseInt(splited[3])
 					);
 		}
-		else if(splited[1] == "CS")
+		else if(splited[1].equals("CS"))
 		{
 			return new CastlingMove(gameModel.getGameBoard(), 
 					gameModel.getGameBoard().getPieceOnField(
@@ -292,7 +235,7 @@ public final class Controller implements MouseListener
 					Integer.parseInt(splited[4])
 					);
 		}
-		else if(splited[1] == "EM")
+		else if(splited[1].equals("EM"))
 		{
 			return new EmptyMove();
 		}
@@ -304,7 +247,7 @@ public final class Controller implements MouseListener
             "Want to play again?",
             "Tic Tac Toe is Fun Fun Fun",
             JOptionPane.YES_NO_OPTION);
-        gameView.getMainFrame().dispose();
+        //gameView.getMainFrame().dispose();
         return response == JOptionPane.YES_OPTION;
     }
 	

@@ -1,19 +1,20 @@
 package chess.view;
 
+import chess.controller.Controller;
+import chess.model.Model;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
 import chess.model.pieces.Piece;
 
 import java.awt.BorderLayout;
-import java.awt.Checkbox;
-import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +28,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 /**
  * This class is main View class for the chess game.
@@ -42,9 +41,9 @@ import javax.swing.JTextField;
 public class BoardTable 
 {
 	/** Main frame of the GUI */
-	private final JFrame gameFrame;
+	protected final JFrame gameFrame;
 	/** Main board panel (@JPanel extension) with separate 8x8 (@JPanel) fields */
-	private final BoardPanel gameBoardPanel;
+	protected final BoardPanel gameBoardPanel;
 	/** Constant Dimension of the chess board */
 	private static final Dimension BOARD_DIMENSION = 
 			new Dimension(GUISettings.BOARD_SIZE, GUISettings.BOARD_SIZE);
@@ -53,8 +52,12 @@ public class BoardTable
 			new Dimension(GUISettings.FIELD_SIZE, GUISettings.FIELD_SIZE);
 	/** Container for currently highlighted moves */
 	protected List<Move> highlightedMoves;
-	/** Variable to store board model to which this @BoardTable class refers to*/
+	/** Reference to store board model to which this @BoardTable class refers to*/
 	private Board gameBoard;
+	/** Reference to the main Model object in MVC approach */
+	protected Model gameModel;
+	/** Reference to the main Controller object in MVC approach */
+	protected Controller controller;
 	/** Is possible moves highlight enabled flag */
 	protected boolean isHighlightEnabled;
 	/**
@@ -144,15 +147,6 @@ public class BoardTable
 		gameBoardPanel.drawPieces(gameBoard.getBlackPieces(), gameBoard.getWhitePieces());
 	}
 	/**
-	 * Adds controller (@MouseListener) to the bottom level @BoardPanel object
-	 * to be passed to board JPanel fields.
-	 * @param controller
-	 */
-	void addController(MouseListener controller)
-	{
-		gameBoardPanel.addController(controller);
-	}
-	/**
 	 * Finds possible moves for the piece pointed by fieldId and calls
 	 * @BoardPanel object to highlight specific fields on the board.
 	 * @param fieldId - absolute position for piece on which possible moves are highlighted.
@@ -213,11 +207,14 @@ public class BoardTable
 	 * @author piotr
 	 *
 	 */
-	private class BoardPanel extends JPanel
+	class BoardPanel extends JPanel
 	{
 		/** Container for all 64 field panels on the chess board */ 
 		final List<FieldPanel> fieldArray;
-		
+		/** Previous clicked panel object on the board */
+		private Object previousPanelClicked;
+		/** Id of the last clicked board panel */
+		private int lastClickedPanelId;
 		/**
 		 * BoardPanel constructor initializes new BoardPanel object
 		 * and add 64 new @FieldPanel objects to itself.
@@ -232,6 +229,8 @@ public class BoardTable
 				fieldArray.add(i, newField);
 				add(newField);
 			}
+			this.previousPanelClicked = null;
+			this.lastClickedPanelId = -1;
 		}
 		
 		/**
@@ -253,11 +252,66 @@ public class BoardTable
 		 * @param controller - Controller object which listen @FieldPanel objects while
 		 * clicked with mouse
 		 */
-		public void addController(MouseListener controller)
+		public void addFieldsListeners()
 		{
 			for(final FieldPanel panel : fieldArray)
 			{
-				panel.addMouseListener((MouseListener) controller);
+				//panel.addMouseListener((MouseListener) controller);
+				panel.addMouseListener(new MouseListener() {
+					/**
+					 * Performs mouse event handling on the board. This method
+					 * sends information about pressed board panels to the game
+					 * model object. It also decides if highlight should be shown
+					 * based on pressed panel.
+					 * 
+					 * @param mouseEvent reference to performed mouse event 
+					 */
+					@Override
+					public void mouseClicked(MouseEvent mouseEvent)
+					{
+						System.out.println("Controller mouse listener active");
+						if(!gameModel.isGameOver())
+						{
+							Alliance a1 = gameModel.getActivePlayer().getAlliance();
+							Alliance a2 = BoardTable.this.controller.getAlliance();
+							if(gameModel.getActivePlayer().getAlliance() == BoardTable.this.controller.getAlliance())
+							{
+								FieldPanel panel = (FieldPanel)mouseEvent.getSource();
+								if(panel == (FieldPanel)previousPanelClicked)
+									return;
+								final int panelId = panel.getPanelId();
+								if(isHighlited())
+									BoardTable.this.removeHighlight();
+								if(gameModel.getGameBoard().isBoardFieldOccupied(panelId) && 
+										isHighlightEnabled())
+								{
+									Piece piece = gameModel.getGameBoard().getPieceOnField(panelId);
+									if(gameModel.getActivePlayer().getAlliance() == piece.getAlliance())
+										highlightPossibleMoves(panelId);
+								}
+								Move mv = gameModel.handleTwoTilesPressed(panelId, lastClickedPanelId);
+								if(mv != null)
+								{
+									BoardTable.this.controller.sendMove(mv);
+								}
+									
+								previousPanelClicked = (FieldPanel)panel;
+								lastClickedPanelId = panel.getPanelId();
+							}
+						}
+					}
+					@Override
+					public void mouseReleased(MouseEvent e) {}
+					
+					@Override
+					public void mousePressed(MouseEvent e) {}
+					
+					@Override
+					public void mouseExited(MouseEvent e) {}
+					
+					@Override
+					public void mouseEntered(MouseEvent e) {}
+				});
 			}
 		}
 		/**
@@ -275,6 +329,24 @@ public class BoardTable
 		public void removeHighlight(final int panelId)
 		{
 			fieldArray.get(panelId).removeHighlight();
+		}
+		/**
+		 * Check if legal moves highlighting is enabled
+		 * @return true if highlight enabled, false otherwise.
+		 */
+		public final boolean isHighlightEnabled()
+		{
+			return isHighlightEnabled;
+		}
+		/**
+		 * Checks if legal moves are currently highlighted.
+		 * @return true if legal moves are highlighted, false otherwise.
+		 */
+		public final boolean isHighlited()
+		{
+			if(highlightedMoves == null || highlightedMoves.isEmpty())
+				return false;
+			return true;
 		}
 	}
 	

@@ -1,11 +1,11 @@
 package chess.view;
 
-import java.awt.event.MouseListener;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JFrame;
 
+import chess.controller.Controller;
 import chess.model.Model;
 import chess.model.game.Move;
 
@@ -19,9 +19,6 @@ import chess.model.game.Move;
  */
 public final class View extends BoardTable implements Observer 
 {
-	/** Reference to the main Model object in MVC approach */
-	private Model gameModel;
-	
 	/**
 	 * View constructor. Initializes model reference with the 
 	 * given model Object and passes it to inner GUI objects..
@@ -50,7 +47,14 @@ public final class View extends BoardTable implements Observer
 			redrawBoard(move.getSpecialMove());
 		}
 		if(gameModel.isGameOver())
+		{
+			try {
+			    Thread.sleep(1000);
+			} catch(InterruptedException ex) {
+			    Thread.currentThread().interrupt();
+			}
 			printResult(gameModel.getWinningAlliance());
+		}
 	}
 
 	/**
@@ -58,9 +62,10 @@ public final class View extends BoardTable implements Observer
 	 * @param controller controller object to be passed to parent
 	 * view objects.
 	 */
-	public void addController(MouseListener controller)
+	public void addController(Controller controller)
 	{
-		super.addController(controller);
+		this.controller = controller;
+		this.gameBoardPanel.addFieldsListeners();
 	}
 	/**
 	 * Calls setInitialGameBoard of the super class.
@@ -78,40 +83,6 @@ public final class View extends BoardTable implements Observer
 	{
 		redrawFieldPanel(move.getSourcePosition());
 		redrawFieldPanel(move.getTargetPosition());
-	}
-	/**
-	 * Checks if legal moves are currently highlighted.
-	 * @return true if legal moves are highlighted, false otherwise.
-	 */
-	public final boolean isHighlited()
-	{
-		if(super.highlightedMoves == null || super.highlightedMoves.isEmpty())
-			return false;
-		return true;
-	}
-	/**
-	 * Highlights possible moves by calling super method.
-	 * @param fieldId is position of the piece whose legal moves
-	 * has to be highlighted.
-	 */
-	public void highlightPossibleMoves(final int fieldId )
-	{
-		super.highlightPossibleMoves(fieldId);
-	}
-	/**
-	 * Removes highlighted fields from the view by calling super method.
-	 */
-	public void removeHighlight()
-	{
-		super.removeHighlight();
-	}
-	/**
-	 * Check if legal moves highlighting is enabled
-	 * @return true if highlight enabled, false otherwise.
-	 */
-	public final boolean isHighlightEnabled()
-	{
-		return isHighlightEnabled;
 	}
 	/**
 	 * This method returns main view frame object (JFrame)
