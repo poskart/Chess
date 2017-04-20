@@ -7,10 +7,10 @@ import chess.model.Model;
  * and Controller objects, initializes and couples them together
  *  to cooperate. This class implements main() method to run the game.
  *  
- * @author PIotr Poskart
+ * @author Piotr Poskart
  *
  */
-public class Chess 
+public class Chess
 {
 	/**
 	 * This is main method of the game. It creates MVC template
@@ -27,7 +27,5 @@ public class Chess
 		view.addController(controller);
 		
 		controller.clientHandle();
-		
-		view.setInitialGameBoard();
 	}
 }

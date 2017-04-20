@@ -43,7 +43,11 @@ public class BoardTable
 	/** Main frame of the GUI */
 	protected final JFrame gameFrame;
 	/** Main board panel (@JPanel extension) with separate 8x8 (@JPanel) fields */
-	protected final BoardPanel gameBoardPanel;
+	protected BoardPanel gameBoardPanel;
+	/** Message label for network messages */
+	protected final JLabel messageLabel;
+	/** Panel for match result screen */
+	protected JPanel winPanel;
 	/** Constant Dimension of the chess board */
 	private static final Dimension BOARD_DIMENSION = 
 			new Dimension(GUISettings.BOARD_SIZE, GUISettings.BOARD_SIZE);
@@ -70,6 +74,7 @@ public class BoardTable
 		gameFrame = new JFrame("Chess");
 		gameFrame.setTitle("Chess");
 		gameFrame.setSize(BOARD_DIMENSION);
+		winPanel = null;
 		final JMenuBar gameMenuBar = new JMenuBar();
 		gameMenuBar.add(createMainMenu());
 		gameFrame.setJMenuBar(gameMenuBar);
@@ -77,6 +82,11 @@ public class BoardTable
 		gameBoardPanel = new BoardPanel();
 		gameFrame.add(gameBoardPanel, BorderLayout.CENTER);
 		gameFrame.setVisible(true);
+		
+		this.messageLabel = new JLabel("");
+		messageLabel.setBackground(Color.lightGray);
+		gameFrame.getContentPane().add(messageLabel, "South");
+		
 		highlightedMoves = null;
 		isHighlightEnabled = false;
 	}
@@ -93,6 +103,7 @@ public class BoardTable
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
+					controller.exitChessClient();
 					System.exit(0);
 				}
 			});
@@ -125,17 +136,33 @@ public class BoardTable
 		else
 			winLabel = new JLabel("Check mate, white wins!");
 		winLabel.setFont(new Font("Arial", 1, 32));
-		JPanel panel = new JPanel();
-		panel.setPreferredSize(new Dimension(GUISettings.GAME_OVER_PANEL_LENGTH, 
+		winPanel = new JPanel();
+		winPanel.setPreferredSize(new Dimension(GUISettings.GAME_OVER_PANEL_LENGTH, 
 				GUISettings.GAME_OVER_PANEL_HIGHT));
-		panel.setBackground(new Color(20, 80, 7, 160));
-		panel.add(winLabel, BorderLayout.CENTER);
-		panel.setLocation(20, 300);
+		winPanel.setBackground(new Color(20, 80, 7, 160));
+		winPanel.add(winLabel, BorderLayout.CENTER);
+		winPanel.setLocation(20, 300);
 		gameFrame.remove(gameBoardPanel);
-		gameFrame.add(panel, BorderLayout.CENTER);
-		panel.validate();
-		panel.repaint();
+		gameFrame.add(winPanel, BorderLayout.CENTER);
+		winPanel.validate();
+		winPanel.repaint();
 		this.gameFrame.setVisible(true);
+	}
+	
+	/**
+	 * This method prepares view for the next match. It removes winPanel if
+	 * exists, creates new BoardPanel and initializes it.
+	 * @param controller is controller to be registered in gui.
+	 */
+	public void prepareNextMatch()
+	{
+		if(winPanel != null)
+			gameFrame.remove(winPanel);
+		gameBoardPanel = new BoardPanel();
+		gameFrame.add(gameBoardPanel, BorderLayout.CENTER);
+		gameFrame.setVisible(true);
+		gameBoardPanel.addFieldsListeners();
+		setInitialGameBoard();
 	}
 	
 	/**
@@ -211,8 +238,6 @@ public class BoardTable
 	{
 		/** Container for all 64 field panels on the chess board */ 
 		final List<FieldPanel> fieldArray;
-		/** Previous clicked panel object on the board */
-		private Object previousPanelClicked;
 		/** Id of the last clicked board panel */
 		private int lastClickedPanelId;
 		/**
@@ -229,7 +254,6 @@ public class BoardTable
 				fieldArray.add(i, newField);
 				add(newField);
 			}
-			this.previousPanelClicked = null;
 			this.lastClickedPanelId = -1;
 		}
 		
@@ -269,16 +293,11 @@ public class BoardTable
 					@Override
 					public void mouseClicked(MouseEvent mouseEvent)
 					{
-						System.out.println("Controller mouse listener active");
-						if(!gameModel.isGameOver())
+						if(!gameModel.isGameOver() && gameModel.isGameStarted())
 						{
-							Alliance a1 = gameModel.getActivePlayer().getAlliance();
-							Alliance a2 = BoardTable.this.controller.getAlliance();
 							if(gameModel.getActivePlayer().getAlliance() == BoardTable.this.controller.getAlliance())
 							{
 								FieldPanel panel = (FieldPanel)mouseEvent.getSource();
-								if(panel == (FieldPanel)previousPanelClicked)
-									return;
 								final int panelId = panel.getPanelId();
 								if(isHighlited())
 									BoardTable.this.removeHighlight();
@@ -294,11 +313,11 @@ public class BoardTable
 								{
 									BoardTable.this.controller.sendMove(mv);
 								}
-									
-								previousPanelClicked = (FieldPanel)panel;
 								lastClickedPanelId = panel.getPanelId();
 							}
 						}
+						else
+							System.out.println("Game is over!");
 					}
 					@Override
 					public void mouseReleased(MouseEvent e) {}

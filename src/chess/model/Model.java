@@ -36,6 +36,8 @@ public final class Model extends Observable
 	private King kingInCheck;
 	/** Is game over flag */
 	private boolean gameOver;
+	/** Is network game started flag */
+	private boolean gameStarted;
 	/** If the game results in stalemate */
 	private boolean stalemate;
 	/** If the game results in checkmate */
@@ -57,6 +59,7 @@ public final class Model extends Observable
 		gameBoard.updateActiveAlliance(activePlayer.getAlliance());
 		kingInCheck = null;
 		gameOver = false;
+		gameStarted = false;
 		stalemate = false;
 		checkmate = true;
 		winningAlliance = null;
@@ -72,6 +75,7 @@ public final class Model extends Observable
 		gameBoard.updateActiveAlliance(activePlayer.getAlliance());
 		kingInCheck = null;
 		gameOver = false;
+		gameStarted = false;
 		stalemate = false;
 		checkmate = true;
 		winningAlliance = null;
@@ -176,6 +180,13 @@ public final class Model extends Observable
 		return null;
 	}
 	/**
+	 * This method sets gameStarted flag to true.
+	 */
+	public void setNetworkGameStartFlag()
+	{
+		gameStarted = true;
+	}
+	/**
 	 * Return reference to game board object
 	 * @return reference to game board object
 	 */
@@ -190,6 +201,14 @@ public final class Model extends Observable
 	public final boolean isGameOver()
 	{
 		return gameOver;
+	}
+	/**
+	 * Check is network game started yet or not.
+	 * @return true if network game is started, false otherwise.
+	 */
+	public final boolean isGameStarted()
+	{
+		return gameStarted;
 	}
 	/**
 	 * Check the winning player alliance

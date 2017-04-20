@@ -69,6 +69,16 @@ public final class Controller
 		return gameAlliance;
 	}
 	
+	public void exitChessClient()
+	{
+		sendMessage("QUIT");
+		System.out.println("Contoller notified server for close...");
+		System.exit(0);
+	}
+	
+	/**
+	 * This method connects client to the server.
+	 */
 	public void connectToServer()
 	{
 		// Get the server address from a dialog box.
@@ -83,9 +93,6 @@ public final class Controller
         {
 	        // Make connection and initialize streams
 	        socket = new Socket(serverAddress, PORT);
-//	        input = new BufferedReader(
-//                    new InputStreamReader(socket.getInputStream()));
-//            output = new PrintWriter(socket.getOutputStream(), true);
 	        in = new BufferedReader(new InputStreamReader(
 	                socket.getInputStream()));
 	        out = new PrintWriter(socket.getOutputStream(), true);
@@ -98,6 +105,11 @@ public final class Controller
         }
 	}
 	
+	/**
+	 * This method sends message to the connected socket and
+	 * handles exceptions related to network communication.
+	 * @param message is message to be sent to the server.
+	 */
 	public void sendMessage(String message)
 	{
 		try
@@ -111,14 +123,15 @@ public final class Controller
 		}
 	}
 	
+	/**
+	 * This method receives message from the connected socket and
+	 * handles exceptions related to network communication.
+	 */
 	public void receiveMessage()
 	{
 		 try 
 		 {
              readMessage = in.readLine();
-             System.out.println("Client - new object received: ");
-             if(readMessage != null)
-            	 System.out.println("\t" + readMessage);
          } 
 		 catch(Exception e1)
 		 {
@@ -127,6 +140,13 @@ public final class Controller
 		 }
 	}
 	
+	/**
+	 * This method is the main client loop to perform communication 
+	 * during the chess match. It receives messages and processes it
+	 * sending moves to the model to be executed or performing another
+	 * actions depending on  received content. It breaks if game is 
+	 * over or received DISCON message from the server.
+	 */
 	public void runClient()
 	{
 		Move moveToExecute = null;
@@ -135,21 +155,35 @@ public final class Controller
 	        while (true) 
 	        {
 	        	receiveMessage();
-	        	if(readMessage.startsWith("ALLIANCE"))
-		    	{
-	        		if(readMessage.charAt(9)== 'B')
-	        		{
-		              	gameAlliance = Alliance.BLACK;
-		              	System.out.println("Zmieniono kolor na B");
-	        		}
-		    	}
-	        	else if (readMessage.startsWith("MOVE")) 
-	            {
-	            	moveToExecute = transformToMove(readMessage);
-	            	gameModel.executeMove(moveToExecute);
-	            	if(gameModel.isGameOver())
-	            		break;
-	            } 
+	        	if(readMessage != null)
+	        	{
+		        	if(readMessage.startsWith("ALLIANCE"))
+			    	{
+		        		if(readMessage.charAt(9)== 'B')
+			              	gameAlliance = Alliance.BLACK;
+		        		else if (readMessage.charAt(9)== 'W')
+			              	gameAlliance = Alliance.WHITE;
+			    	}
+		        	else if(readMessage.startsWith("START"))
+		        	{
+		        		gameModel.setNetworkGameStartFlag();
+		        	}
+		        	else if (readMessage.startsWith("MOVE")) 
+		            {
+		            	moveToExecute = transformToMove(readMessage);
+		            	gameModel.executeMove(moveToExecute);
+		            	if(gameModel.isGameOver())
+		            		break;
+		            } 
+		        	else if(readMessage.startsWith("DISCON"))
+		        	{
+		        		break;
+		        	}
+		        	else
+		        	{
+		        		gameView.setMessageText(readMessage);
+		        	}
+	        	}
 	        }
 	        sendMessage("QUIT");
 		}
@@ -158,6 +192,11 @@ public final class Controller
         }
 	}
 	
+	/**
+	 * This method transforms given move to text description of 
+	 * this move and send it through socket to the server.
+	 * @param move Move object which is a move to be sent to the server.
+	 */
 	public void sendMove(final Move move)
 	{
 		String moveInMessage = "MOVE ";
@@ -193,6 +232,12 @@ public final class Controller
 		sendMessage(moveInMessage);
 	}
 	
+	/**
+	 * This method transform move description (String) to proper 
+	 * Move object.
+	 * @param moveDescription is input String with description of the move
+	 * @return Move object corresponding to move description.
+	 */
 	public final Move transformToMove(String moveDescription)
 	{
 		String[] splited = moveDescription.split("\\s+");
@@ -242,15 +287,27 @@ public final class Controller
 		return null;
 	}
 	
-    private boolean wantsToPlayAgain() {
+	/**
+	 * This method prints prompt for user to ask if he wants to play and
+	 * returns true if yes, false otherwise.
+	 * @return true if user wants to play, false otherwise.
+	 */
+    private boolean wantsToPlayAgain() 
+    {
         int response = JOptionPane.showConfirmDialog(gameView.getMainFrame(),
             "Want to play again?",
-            "Tic Tac Toe is Fun Fun Fun",
+            "Network Chess",
             JOptionPane.YES_NO_OPTION);
-        //gameView.getMainFrame().dispose();
         return response == JOptionPane.YES_OPTION;
     }
 	
+    /**
+     * This method contains main client loop in which it 
+     * performs cyclic connection to the server, running the game 
+     * and provides user decision to play or not to play again. 
+     * It also clears the game objects and prepares new board 
+     * before new game.
+     */
 	public void clientHandle()
 	{
 		 while (true) 
@@ -260,10 +317,11 @@ public final class Controller
             runClient();
             if (!wantsToPlayAgain())
             {
-                break;
+    	        sendMessage("QUIT");
+                System.exit(0);
             }
             gameModel.resetModel();
-            gameView.setInitialGameBoard();
+            gameView.prepareNextMatch();
         }
 	}
 }

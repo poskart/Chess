@@ -92,4 +92,14 @@ public final class View extends BoardTable implements Observer
 	{
 		return super.getMainFrame();
 	}
+	/**
+	 * This method sets given message in the message label in main
+	 * game frame message label.
+	 * @param message is a message to be displayed on the message label
+	 * in the game window.
+	 */
+	public final void setMessageText(String message)
+	{
+		messageLabel.setText(message);
+	}
 }

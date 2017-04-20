@@ -1,13 +1,9 @@
-package chess.controller;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import chess.model.aux.Alliance;
 
 public class ChessServer 
 {
@@ -42,7 +38,6 @@ class Player extends Thread
     String receivedMessage;
     BufferedReader in;
     PrintWriter out;
-    Alliance activeAlliance;
 
     /**
      * Constructs a handler thread for a given socket and mark
@@ -58,41 +53,13 @@ class Player extends Thread
         	in = new BufferedReader(new InputStreamReader(
 	                socket.getInputStream()));
         	out = new PrintWriter(socket.getOutputStream(), true);
-            sendMessage(new String("Welcome to the chess game!"));
+        	out.println("Welcome to the chess game! Waiting for opponent...");
         } 
         catch (IOException e) 
         {
             System.out.println("Player died: " + e);
         }
     }
-    
-    public void sendMessage(String message)
-	{
-		try
-		{
-			out.println(message);
-		}
-		catch(Exception e)
-		{
-			System.out.println("Exception! - cannot write to the server");
-        	e.printStackTrace(System.out);
-		}
-	}
-	
-	public void receiveMessage()
-	{
-		 try 
-		 {
-			 receivedMessage = in.readLine();
-             if(receivedMessage != null)
-            	 System.out.println(receivedMessage);
-         } 
-		 catch(IOException e1)
-		 {
-        	System.out.println("Exception! - cannot read from the input buffer");
-        	e1.printStackTrace(System.out);
-		 }
-	}
 	
     /**
      * Accepts notification of who the opponent is.
@@ -101,44 +68,69 @@ class Player extends Thread
         this.opponent = opponent;
     }
     
+    public void printPrompt()
+    {
+    	if(mark == 'B')
+    		out.println("Black, your move");
+    	else if (mark == 'W')
+    		out.println("White, your move");
+    }
+    
     /**
      * The run method of this thread.
      */
-    public void run() {
-        try {
+    public void run() 
+    {
+        try 
+        {
             // The thread is only started after everyone connects.
-            sendMessage(new String("ALLIANCE " + mark));
-
+        	out.println(new String("ALLIANCE " + mark));
+        	out.println(new String("START "));
+        	
             // Tell the first player that it is her turn.
-            if (mark == 'W') {
-            	sendMessage(new String("White! your move"));
-            }
-
+            if (mark == 'W')
+            	printPrompt();
+        	else
+        		out.println("Opponent's move...");
             // Repeatedly get commands from the client and process them.
             while (true) 
             {
-            	receiveMessage();
+            	receivedMessage = in.readLine();
             	if(receivedMessage != null)
             	{
 	            	if (receivedMessage.startsWith("MOVE")) 
 	                {
-	            		sendMessage(new String("New move registered in server..."));
-	            		opponent.sendMessage(receivedMessage);
+	            		opponent.out.println(receivedMessage);
+	            		opponent.printPrompt();
+	            		out.println("Opponent's move...");
 	                } 
 	            	else
 	            	{
 	            		System.out.println(receivedMessage);
 		            	if (receivedMessage.startsWith("QUIT")) 
 		                {
-		                    return;
+		            		// notify second player that another has disconnected
+		            		opponent.out.println("Opponent disconnected...");
+		            		opponent.out.println("DISCON");
+		            		return;
 		                }
 	            	}
             	}
+            	else
+            	{
+            		System.out.println("Otrzymalem null");
+            		return;
+            	}
             }
         } 
-        catch (Exception e) 
+        catch (IOException e)
         {
-        	e.printStackTrace(System.out);
+         	System.out.println("Exception! - cannot read from the input buffer");
+        	e.printStackTrace(System.out);        
+    	}
+        catch(Exception e1)
+        {
+        	System.out.println("Error, Undefined server exception");
         }
         finally
         {
