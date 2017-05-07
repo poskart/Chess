@@ -8,15 +8,30 @@ import chess.model.game.Move;
 import chess.model.game.Move.AttackMove;
 import chess.model.game.Move.CommonMove;
 import chess.model.game.Move.PawnPromotionMove;
-
+/**
+ * This class represents Pawn piece. It defines methods to 
+ * calculate possible moves and other auxiliary functions.
+ * @author Piotr Poskart
+ *
+ */
 public class Pawn extends Piece 
 {
+	/**
+	 * Pawn constructor which takes position and alliance of new Pawn.
+	 * @param position is position of new Pawn
+	 * @param alliance is alliance of new Pawn
+	 */
 	public Pawn(final int position, final Alliance alliance)
 	{
 		super(position, alliance);
 		this.pieceType = PieceType.PAWN;
 	}
-	
+	/**
+	 * Pawn specific method which returns set of possible moves which Pawn
+	 * can perform.
+	 * @param board is reference to the board object
+	 * @return container of Move object which this Pawn can perform.
+	 */
 	@Override
 	public List<Move> findPossibleMoves(Board board)
 	{
@@ -64,7 +79,13 @@ public class Pawn extends Piece
 		
 		return possibleMovesList;
 	}
-	
+	/**
+	 * Pawn specific method which return set of possible attack moves which Pawn
+	 * can perform. These are other than common (non attack) Pawn moves.
+	 * @param board is reference to the board object
+	 * @return container of Move object which Pawn can perform and that are 
+	 * attack moves. 
+	 */
 	@Override	
 	public List<Move> findPossibleAttackMoves(final Board board)
 	{
@@ -86,7 +107,13 @@ public class Pawn extends Piece
 		
 		return possibleMovesList;
 	}
-	
+	/**
+	 * This method checks if given target position is valid to move on.
+	 * @param board reference to the board object
+	 * @param currentPosition current position of this pawn
+	 * @param targetPosition target position of this pawn
+	 * @return true if target position is valid to move on, false otherwise.
+	 */
 	private final boolean isFieldValidToCapture(
 			Board board, final int currentPosition, final int targetPosition)
 	{
@@ -100,7 +127,11 @@ public class Pawn extends Piece
 		
 		return false;
 	}
-	
+	/**
+	 * This is toString method specific for Pawn object. it returns String 
+	 * with letter 'P' of the Pawn piece.
+	 * @return String with letter of the Pawn.
+	 */
 	@Override
 	public String toString()
 	{

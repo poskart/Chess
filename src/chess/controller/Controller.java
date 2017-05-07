@@ -19,9 +19,10 @@ import chess.model.game.Move.PawnPromotionMove;
 import chess.view.View;
 
 /**
- * Main controller class which implements MouseListener interface
- * nedded my View section of the game. Controller initializes model
- * and view for the game and handles user actions on the game board. 
+ * Main controller class which implements client session handling
+ * including communication with the server and game management
+ * through high level commands performed using game model and view 
+ * objects.
  * 
  * @author Piotr Poskart
  *
@@ -32,16 +33,23 @@ public final class Controller
 	private final Model gameModel;
 	/** Main game view object  */
 	private final View gameView;
-	
+	/** Port number for network communication */
     private static int PORT = 8901;
+    /** Reference to the socket object used in the network communication */
     private Socket socket;
+    /** Alliance of the player in the current match*/
     private Alliance gameAlliance;
+    /** Common message object - message received from server */
     private String readMessage;
+    /** BufferedReader object for buffered messages reading from server */
     private BufferedReader in;
+    /** PrintWriter object for writing messages to server */
     private PrintWriter out;
+    
 	/**
 	 * Controller constructor. Initializes game objects - model
-	 * and view, as well as last clicked board panel attributes.
+	 * and view, as well as initializes alliance and readMessages
+	 * with default initial values.
 	 * 
 	 * @param model - reference to main game model object
 	 * @param view - reference to main game view object
@@ -68,7 +76,11 @@ public final class Controller
 	{
 		return gameAlliance;
 	}
-	
+	/**
+	 * This method exits chess client. First it sends a message
+	 * to notify server then prints a confirmation of the closing
+	 * and finally exits with 0 code.
+	 */
 	public void exitChessClient()
 	{
 		sendMessage("QUIT");
@@ -125,7 +137,8 @@ public final class Controller
 	
 	/**
 	 * This method receives message from the connected socket and
-	 * handles exceptions related to network communication.
+	 * handles exceptions related to network communication. Received
+	 * messages are stored in readMessage attribute.
 	 */
 	public void receiveMessage()
 	{
@@ -143,7 +156,7 @@ public final class Controller
 	/**
 	 * This method is the main client loop to perform communication 
 	 * during the chess match. It receives messages and processes it
-	 * sending moves to the model to be executed or performing another
+	 * sending moves to the model to be executed or perform another
 	 * actions depending on  received content. It breaks if game is 
 	 * over or received DISCON message from the server.
 	 */

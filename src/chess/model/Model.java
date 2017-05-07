@@ -5,11 +5,11 @@ import java.util.Observable;
 
 import chess.model.game.Player;
 import chess.model.game.WhitePlayer;
+import chess.model.game.BlackPlayer;
 import chess.model.pieces.King;
 import chess.model.pieces.Piece;
 import chess.model.aux.Alliance;
 import chess.model.board.Board;
-import chess.model.game.BlackPlayer;
 import chess.model.game.Move;
 
 /**

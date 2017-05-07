@@ -8,7 +8,12 @@ import chess.model.game.Move;
 import chess.model.game.Move.AttackMove;
 import chess.model.game.Move.CommonMove;
 import chess.model.game.Move.CastlingMove;
-
+/**
+ * This class represents King piece. It defines methods to 
+ * calculate possible moves and other auxiliary functions for King.
+ * @author Piotr Poskart
+ *
+ */
 public class King extends Piece 
 {
 	private static final int[] possibleMoveOffset = {-9, -8, -7, -1, 1, 7, 8, 9};

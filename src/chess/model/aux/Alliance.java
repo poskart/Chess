@@ -1,7 +1,15 @@
 package chess.model.aux;
 
+/**
+ * This is enumeration type for chess Alliance representation.
+ * @author Piotr Poskart
+ *
+ */
 public enum Alliance 
 {
+	/**
+	 * White enumeration type
+	 */
 	WHITE
 	{
 		@Override
@@ -16,6 +24,9 @@ public enum Alliance
 		}
 	},
 	
+	/**
+	 * Black enumeration type
+	 */
 	BLACK
 	{
 		@Override
@@ -30,7 +41,15 @@ public enum Alliance
 		}
 	};
 	
+	/**
+	 * This method returns contrary alliance of the current alliance
+	 * @return
+	 */
 	public abstract Alliance getContraryAlliance();
 	
+	/**
+	 * This method returns direction of the attack of the current alliance.
+	 * @return
+	 */
 	public abstract int getDirection();
 }

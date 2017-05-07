@@ -13,7 +13,7 @@ import chess.model.Model;
 public class Chess
 {
 	/**
-	 * This is main method of the game. It creates MVC template
+	 * This is main client method of the game. It creates MVC template
 	 * objects, initializes and couples them together running the
 	 * game.
 	 * @param args
