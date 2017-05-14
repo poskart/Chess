@@ -1,4 +1,4 @@
-package chess.model.aux;
+package chess.model.common;
 
 /**
  * This is enumeration type for chess Alliance representation.

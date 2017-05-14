@@ -2,7 +2,7 @@ package chess.view;
 
 import chess.controller.Controller;
 import chess.model.Model;
-import chess.model.aux.Alliance;
+import chess.model.common.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
 import chess.model.pieces.Piece;

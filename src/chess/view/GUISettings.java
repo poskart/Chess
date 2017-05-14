@@ -24,7 +24,7 @@ public final class GUISettings
 	/** Relative path to main directory with images of pieces */
 	public static final String PIECE_IMAGES_PATH = "img/pieces/";
 	/** Relative path to image with allowed move image */
-	public static final String HIGHLIGHT_IMAGE_PATH = "img/aux/allowed.gif";
+	public static final String HIGHLIGHT_IMAGE_PATH = "img/common/allowed.gif";
 	
 	/** Game over panel length */
 	public static final int GAME_OVER_PANEL_LENGTH = 400;

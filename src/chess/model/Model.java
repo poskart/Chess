@@ -8,7 +8,7 @@ import chess.model.game.WhitePlayer;
 import chess.model.game.BlackPlayer;
 import chess.model.pieces.King;
 import chess.model.pieces.Piece;
-import chess.model.aux.Alliance;
+import chess.model.common.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
 

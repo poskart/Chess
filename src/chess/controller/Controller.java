@@ -9,7 +9,7 @@ import java.net.Socket;
 import javax.swing.JOptionPane;
 
 import chess.model.Model;
-import chess.model.aux.Alliance;
+import chess.model.common.Alliance;
 import chess.model.game.Move;
 import chess.model.game.Move.AttackMove;
 import chess.model.game.Move.CastlingMove;
@@ -89,17 +89,20 @@ public final class Controller
 	}
 	
 	/**
-	 * This method connects client to the server.
+	 * This method connects client to the server with address taken from input
+	 * dialog pane. If there are troubles in connection establishment, this method 
+	 * prints an error message and exits chess client with status 1.
 	 */
 	public void connectToServer()
 	{
 		// Get the server address from a dialog box.
-        String serverAddress = "localhost";
-//        		JOptionPane.showInputDialog(
-//        		gameView.getMainFrame(),
-//            "Enter IP Address of the Server:",
-//            "Welcome to the Chess game",
-//            JOptionPane.QUESTION_MESSAGE);
+//        String serverAddress = "localhost";
+		String serverAddress =
+        		JOptionPane.showInputDialog(
+        		gameView.getMainFrame(),
+            "Enter IP Address of the Server:",
+            "Welcome to the Chess game",
+            JOptionPane.QUESTION_MESSAGE);
 
         try
         {
@@ -112,8 +115,15 @@ public final class Controller
         catch(IOException e)
         {
         	System.out.println("Exception! - cannot connect to the server");
-        	e.printStackTrace(System.out);	
-        	try {socket.close();} catch (IOException e1) {}
+        	e.printStackTrace(System.out);
+        	if(socket != null)
+        		try {socket.close();} catch (IOException e1) {}
+        	JOptionPane.showMessageDialog(
+            		gameView.getMainFrame(),
+                "Cannot connect to server "+serverAddress,
+                "Server IP Address request:",
+                JOptionPane.OK_OPTION);
+        	System.exit(1);
         }
 	}
 	

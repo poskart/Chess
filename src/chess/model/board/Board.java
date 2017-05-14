@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import chess.model.game.Move;
-import chess.model.aux.Alliance;
+import chess.model.common.Alliance;
 import chess.model.pieces.*;
 
 /**

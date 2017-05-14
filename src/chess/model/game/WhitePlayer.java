@@ -1,6 +1,6 @@
 package chess.model.game;
 
-import chess.model.aux.Alliance;
+import chess.model.common.Alliance;
 
 /**
  * This is class which represents white player

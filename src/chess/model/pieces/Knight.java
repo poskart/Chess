@@ -3,7 +3,7 @@ package chess.model.pieces;
 import java.util.ArrayList;
 import java.util.List;
 
-import chess.model.aux.Alliance;
+import chess.model.common.Alliance;
 import chess.model.board.Board;
 import chess.model.game.Move;
 import chess.model.game.Move.AttackMove;
