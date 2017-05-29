@@ -4,6 +4,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * This is main chess server class. This class defines objects
@@ -21,30 +24,93 @@ import java.net.Socket;
  * @author Piotr Poskart
  *
  */
-public class ChessServer 
+public class ChessServer extends Thread
 {
+	private static List<Player> playerThreads;
 	/**
      * This main server method runs the application. It pairs up 
      * clients that connect to this server.
      */
-    public static void main(String[] args) throws Exception {
-        ServerSocket listener = new ServerSocket(8901);
-        System.out.println("Chess Server is Running");
-        try {
-            while (true) {
+    public static void main(String[] args) throws Exception 
+    {
+    	ChessServer server = new ChessServer();
+    	server.start();
+    	ServerManager servManager = new ServerManager(server);
+    	servManager.start();
+    }
+    
+    public void run()
+    {
+    	playerThreads = new ArrayList<>();
+    	ServerSocket listener = null;
+        try 
+        {
+        	listener = new ServerSocket(8901);
+            System.out.println("Chess Server is Running");
+            while (true) 
+            {
                 Player player1 = new Player(listener.accept(), 'W');
+                playerThreads.add(player1);
                 System.out.println("Server accepted 1 player");
                 Player player2 = new Player(listener.accept(), 'B');
+                playerThreads.add(player2);
                 System.out.println("Server accepted 2 player");
                 player1.setOpponent(player2);
                 player2.setOpponent(player1);
                 player1.start();
                 player2.start();
             }
-        } finally {
-            listener.close();
+        } 
+        catch(IOException e)
+        {
+        	e.printStackTrace();
+        }
+        finally 
+        {
+        	try 
+        	{
+        		if(listener != null)
+        			listener.close();
+    		} catch (IOException e) {}
         }
     }
+    
+    public void closeServer()
+    {
+    	for(Player threadX: playerThreads)
+    	{
+    		threadX.sendServerCLoseInfo();
+    	}
+    	System.exit(0);
+    }
+}
+
+
+class ServerManager extends Thread
+{
+	ChessServer handledServer;
+	public ServerManager(ChessServer handledServer)
+	{
+		this.handledServer = handledServer;
+	}
+	
+	public void run()
+	{
+		Scanner inputReader = new Scanner(System.in);
+		while(true) 
+	    {
+	        if (inputReader.hasNext())
+	        {
+	            String input = inputReader.next();
+	            if (input.toLowerCase().equals("quit"))
+	            {
+	            	handledServer.closeServer();
+	            	break;
+	            }
+	        }
+	    }
+		inputReader.close();
+	}
 }
 
 /**
@@ -99,6 +165,14 @@ class Player extends Thread
      */
     public void setOpponent(Player opponent) {
         this.opponent = opponent;
+    }
+    /**
+     * This method notifies client that server is to close now.
+     */
+    public void sendServerCLoseInfo()
+    {
+    	out.println("Chess server is closed, try another server...");
+		out.println("SERVER CLOSE");
     }
     /**
      * This method sends prompt for the client with the

@@ -97,34 +97,38 @@ public final class Controller
 	{
 		// Get the server address from a dialog box.
 //        String serverAddress = "localhost";
-		String serverAddress =
-        		JOptionPane.showInputDialog(
-        		gameView.getMainFrame(),
-            "Enter IP Address of the Server:",
-            "Welcome to the Chess game",
-            JOptionPane.QUESTION_MESSAGE);
-
-        try
-        {
-	        // Make connection and initialize streams
-	        socket = new Socket(serverAddress, PORT);
-	        in = new BufferedReader(new InputStreamReader(
-	                socket.getInputStream()));
-	        out = new PrintWriter(socket.getOutputStream(), true);
-        }
-        catch(IOException e)
-        {
-        	System.out.println("Exception! - cannot connect to the server");
-        	e.printStackTrace(System.out);
-        	if(socket != null)
-        		try {socket.close();} catch (IOException e1) {}
-        	JOptionPane.showMessageDialog(
-            		gameView.getMainFrame(),
-                "Cannot connect to server "+serverAddress,
-                "Server IP Address request:",
-                JOptionPane.OK_OPTION);
-        	System.exit(1);
-        }
+		while(true)
+		{
+			String serverAddress =
+	        		JOptionPane.showInputDialog(
+	        		gameView.getMainFrame(),
+	            "Enter IP Address of the Server:",
+	            "Welcome to the Chess game",
+	            JOptionPane.QUESTION_MESSAGE);
+			if(serverAddress == null)
+				break;
+	        try
+	        {
+		        // Make connection and initialize streams
+		        socket = new Socket(serverAddress, PORT);
+		        in = new BufferedReader(new InputStreamReader(
+		                socket.getInputStream()));
+		        out = new PrintWriter(socket.getOutputStream(), true);
+		        break;
+	        }
+	        catch(IOException e)
+	        {
+	        	System.out.println("Exception! - cannot connect to the server");
+	        	e.printStackTrace(System.out);
+	        	if(socket != null)
+	        		try {socket.close();} catch (IOException e1) {}
+	        	JOptionPane.showMessageDialog(
+	            		gameView.getMainFrame(),
+	                "Cannot connect to server "+serverAddress,
+	                "Server IP Address request:",
+	                JOptionPane.OK_OPTION);
+	        }
+		}
 	}
 	
 	/**
@@ -202,6 +206,10 @@ public final class Controller
 		        	{
 		        		break;
 		        	}
+		        	if(readMessage.startsWith("SERVER CLOSE"))
+			    	{
+		        		break;
+			    	}
 		        	else
 		        	{
 		        		gameView.setMessageText(readMessage);
@@ -338,6 +346,7 @@ public final class Controller
 			connectToServer();
           
             runClient();
+
             if (!wantsToPlayAgain())
             {
     	        sendMessage("QUIT");
